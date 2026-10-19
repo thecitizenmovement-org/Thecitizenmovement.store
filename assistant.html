@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Legal Assistant — The Citizen Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#c6a45d;--bg:#0d0f14;--panel:#151923;--text:#e8e4d8;--muted:#9a958a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Libre Franklin',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+  header{padding:20px;text-align:center;border-bottom:1px solid rgba(198,164,93,.25)}
+  header h1{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--gold)}
+  header p{color:var(--muted);font-size:.85rem;margin-top:4px}
+  .disclaimer{background:#2a2118;border:1px solid var(--gold);color:#f0d9a8;padding:10px 16px;font-size:.8rem;text-align:center}
+  .toolbar{display:flex;gap:10px;justify-content:center;padding:12px;flex-wrap:wrap;border-bottom:1px solid rgba(198,164,93,.15)}
+  .toolbar button{background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:20px;padding:8px 16px;font-size:.8rem;cursor:pointer;font-family:inherit}
+  .toolbar button:hover{background:rgba(198,164,93,.12)}
+  .quota{text-align:center;color:var(--muted);font-size:.78rem;padding:8px}
+  .quota strong{color:var(--gold)}
+  #chat{flex:1;overflow-y:auto;padding:20px;max-width:760px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+  .msg{max-width:85%;padding:12px 16px;border-radius:14px;line-height:1.55;font-size:.92rem}
+  .msg.user{align-self:flex-end;background:#24304a;border-bottom-right-radius:4px}
+  .msg.bot{align-self:flex-start;background:var(--panel);border:1px solid rgba(198,164,93,.2);border-bottom-left-radius:4px}
+  .msg.bot a{color:var(--gold)}
+  .msg .who{font-size:.7rem;color:var(--muted);margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase}
+  .typing{color:var(--muted);font-style:italic}
+  #composer{display:flex;gap:10px;padding:16px;max-width:760px;width:100%;margin:0 auto}
+  #input{flex:1;background:var(--panel);border:1px solid rgba(198,164,93,.3);border-radius:24px;color:var(--text);padding:12px 18px;font-size:.95rem;font-family:inherit;outline:none}
+  #input:focus{border-color:var(--gold)}
+  #send{background:var(--gold);border:none;color:#111;border-radius:24px;padding:12px 24px;font-weight:700;cursor:pointer;font-family:inherit}
+  #send:disabled{opacity:.5;cursor:default}
+  .subscribe-cta{text-align:center;padding:24px}
+  .subscribe-cta a{display:inline-block;background:var(--gold);color:#111;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:28px}
+  footer{text-align:center;color:var(--muted);font-size:.75rem;padding:16px}
+  input[type=file]{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>Citizen AI Legal Assistant</h1>
+  <p>Answers grounded in our curated law library &amp; document templates</p>
+</header>
+<div class="disclaimer">Not a lawyer. Not legal advice. For legal information only — consult a licensed attorney for your situation.</div>
+<div class="toolbar">
+  <button id="btn-templates" title="Step-by-step help filling out a template">📄 Template walkthrough</button>
+  <button id="btn-upload" title="Upload a document for the assistant to review">📎 Upload document</button>
+  <button id="btn-history" title="Show saved conversations">🕘 History</button>
+  <input type="file" id="file" accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg">
+</div>
+<div class="quota">Questions used this month: <strong id="used">0</strong> / 50</div>
+<div id="chat"></div>
+<div id="composer">
+  <input id="input" type="text" placeholder="Ask about a legal process, a form, your rights…" autocomplete="off">
+  <button id="send">Ask</button>
+</div>
+<div class="subscribe-cta" id="subscribe-cta" style="display:none">
+  <p style="margin-bottom:12px;color:var(--muted)">Two tiers. Both include 50 questions/month and the full law library.</p>
+  <p style="margin-bottom:8px"><a href="https://buy.stripe.com/8x25kwecOfmO0Tjgw45wI01">Assistant — $15/month</a></p>
+  <p style="color:var(--muted);font-size:.8rem;margin-bottom:12px">Conversations + document reference assistance</p>
+  <p style="margin-bottom:8px"><a href="https://buy.stripe.com/4gM00c0lY0rU8lL5Rq5wI02">Assistant Pro — $50/month</a></p>
+  <p style="color:var(--muted);font-size:.8rem">Document upload review + hands-on filing assistance + template walkthroughs.<br>We file your CPRA/FOIA requests by email (5/month, max 2 per agency).</p>
+</div>
+<footer>The Citizen Store · thecitizenmovement.store · Powered by Stripe</footer>
+
+<script>
+/* CONFIG — point BACKEND_URL at the Supabase Edge Function when it ships.
+   Until then the page runs in preview mode against the local demo. */
+const BACKEND_URL = "https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/legal-assistant"; // wired 2026-10-13
+const MONTHLY_QUOTA = 50;
+const SUBSCRIBED = false; // flip via backend session check later
+
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+const usedEl = document.getElementById('used');
+let used = parseInt(localStorage.getItem('cq_used') || '0', 10);
+let history = JSON.parse(localStorage.getItem('cq_history') || '[]');
+
+function renderQuota(){ usedEl.textContent = used; }
+function saveState(){
+  localStorage.setItem('cq_used', String(used));
+  localStorage.setItem('cq_history', JSON.stringify(history.slice(-50)));
+}
+function addMsg(who, text){
+  const d = document.createElement('div');
+  d.className = 'msg ' + who;
+  d.innerHTML = '<div class="who">' + (who === 'user' ? 'You' : 'Assistant') + '</div>'
+    + text.replace(/</g, '&lt;').replace(/\n/g, '<br>');
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+  return d;
+}
+function setLoading(on){
+  sendBtn.disabled = on;
+  input.disabled = on;
+}
+
+async function ask(question){
+  if (used >= MONTHLY_QUOTA) {
+    addMsg('bot', "You've used all 50 questions for this month. Your quota resets on the 1st.");
+    return;
+  }
+  addMsg('user', question);
+  history.push({role:'user', text:question});
+  const bubble = addMsg('bot', '<span class="typing">Thinking…</span>');
+  setLoading(true);
+  try {
+    let answer;
+    if (BACKEND_URL) {
+      const r = await fetch(BACKEND_URL, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({question, history: history.slice(-10)})
+      });
+      if (!r.ok) throw new Error('backend ' + r.status);
+      answer = (await r.json()).answer;
+    } else {
+      throw new Error('preview-mode');
+    }
+    bubble.innerHTML = '<div class="who">Assistant</div>' + answer.replace(/</g,'&lt;').replace(/\n/g,'<br>');
+    history.push({role:'assistant', text:answer});
+    used++; renderQuota(); saveState();
+  } catch(e) {
+    bubble.innerHTML = '<div class="who">Assistant</div>Preview mode — the live backend connects here when it ships. Your question was: <i>' +
+      question.replace(/</g,'&lt;') + '</i>';
+  }
+  setLoading(false);
+}
+
+sendBtn.onclick = () => { const q = input.value.trim(); if (q) { input.value=''; ask(q); } };
+input.onkeydown = e => { if (e.key === 'Enter') sendBtn.onclick(); };
+
+document.getElementById('btn-upload').onclick = () => document.getElementById('file').click();
+document.getElementById('file').onchange = e => {
+  const f = e.target.files[0];
+  if (f) ask("I've uploaded a document called \"" + f.name + "\". Please review it and tell me what it is and what I should know about it.");
+  e.target.value = '';
+};
+document.getElementById('btn-templates').onclick = () =>
+  ask("Walk me through filling out a CPRA request template step by step.");
+document.getElementById('btn-history').onclick = () => {
+  if (!history.length) { addMsg('bot', "No saved conversations yet."); return; }
+  const items = history.slice(-10).map(h =>
+    '<b>' + (h.role === 'user' ? 'You' : 'Assistant') + ':</b> ' +
+    h.text.replace(/</g,'&lt;').slice(0, 120) + (h.text.length > 120 ? '…' : '')
+  ).join('<br><br>');
+  addMsg('bot', items);
+};
+
+if (!SUBSCRIBED) document.getElementById('subscribe-cta').style.display = 'block';
+renderQuota();
+addMsg('bot', "I'm the Citizen AI Legal Assistant. Ask me about legal processes, your rights, or our document templates — I answer from our curated law library. What's on your mind?");
+</script>
+</body>
+</html>
