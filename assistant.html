@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI Legal Assistant — The Citizen Store</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{--gold:#c6a45d;--bg:#0d0f14;--panel:#151923;--text:#e8e4d8;--muted:#9a958a}
@@ -50,6 +51,16 @@
 </div>
 <div class="quota">Questions used this month: <strong id="used">0</strong> / 50</div>
 <div id="chat"></div>
+<div id="auth-box" style="max-width:760px;width:100%;margin:0 auto;padding:12px 16px;text-align:center">
+  <p id="auth-status" style="color:var(--muted);font-size:.85rem;margin-bottom:8px">Sign in to use the assistant. Join free first, then subscribe — use the same email for sign-up and for Stripe checkout.</p>
+  <div id="auth-form" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <input id="auth-email" type="email" placeholder="Email" autocomplete="email" style="background:var(--panel);border:1px solid rgba(198,164,93,.3);border-radius:20px;color:var(--text);padding:10px 14px;font-size:.9rem">
+    <input id="auth-pass" type="password" placeholder="Password" autocomplete="current-password" style="background:var(--panel);border:1px solid rgba(198,164,93,.3);border-radius:20px;color:var(--text);padding:10px 14px;font-size:.9rem">
+    <button id="btn-signin" style="background:var(--gold);border:none;color:#111;border-radius:20px;padding:10px 18px;font-weight:700;cursor:pointer">Sign in</button>
+    <button id="btn-join" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:20px;padding:10px 18px;cursor:pointer">Join free</button>
+    <button id="btn-signout" style="display:none;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:20px;padding:10px 18px;cursor:pointer">Sign out</button>
+  </div>
+</div>
 <div id="composer">
   <input id="input" type="text" placeholder="Ask about a legal process, a form, your rights…" autocomplete="off">
   <button id="send">Ask</button>
@@ -68,7 +79,10 @@
    Until then the page runs in preview mode against the local demo. */
 const BACKEND_URL = "https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/legal-assistant"; // wired 2026-10-13
 const MONTHLY_QUOTA = 50;
-const SUBSCRIBED = false; // flip via backend session check later
+let SUBSCRIBED = false;
+const SUPABASE_URL = "https://jesrbqrwbacuirwxbkis.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implc3JicXJ3YmFjdWlyd3hia2lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2NTU2OTcsImV4cCI6MjEwNzIzMTY5N30._LCnNC2JIjijt6n0u3kKestF5G2Zsjju4hEv1d1tImc";
+const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 const chat = document.getElementById('chat');
 const input = document.getElementById('input');
@@ -96,6 +110,37 @@ function setLoading(on){
   input.disabled = on;
 }
 
+
+async function refreshAuth(){
+  if (!supabaseClient) { document.getElementById('auth-status').textContent = 'Sign-in library failed to load — check connection and reload.'; return; }
+  const { data } = await supabaseClient.auth.getSession();
+  const session = data && data.session;
+  SUBSCRIBED = !!session;
+  document.getElementById('subscribe-cta').style.display = session ? 'none' : 'block';
+  document.getElementById('auth-form').style.display = session ? 'none' : 'flex';
+  document.getElementById('btn-signout').style.display = session ? 'inline-block' : 'none';
+  document.getElementById('auth-status').textContent = session ? ('Signed in as ' + session.user.email + ' — ask away. Your subscription is checked on every question.') : 'Sign in to use the assistant. Join free first, then subscribe — use the same email for sign-up and for Stripe checkout.';
+  if (session) document.getElementById('auth-form').appendChild(document.getElementById('btn-signout'));
+}
+async function authGo(mode){
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  const st = document.getElementById('auth-status');
+  if (!email || !pass) { st.textContent = 'Enter email and password.'; return; }
+  st.textContent = mode === 'join' ? 'Creating your account…' : 'Signing you in…';
+  const r = mode === 'join'
+    ? await supabaseClient.auth.signUp({ email, password: pass })
+    : await supabaseClient.auth.signInWithPassword({ email, password: pass });
+  if (r.error) { st.textContent = r.error.message; return; }
+  if (mode === 'join' && !r.data.session) { st.textContent = 'Check your email to confirm, then sign in.'; return; }
+  await refreshAuth();
+}
+document.getElementById('btn-signin').onclick = () => authGo('login');
+document.getElementById('btn-join').onclick = () => authGo('join');
+document.getElementById('btn-signout').onclick = async () => { await supabaseClient.auth.signOut(); await refreshAuth(); };
+refreshAuth();
+if (supabaseClient) supabaseClient.auth.onAuthStateChange(() => refreshAuth());
+
 async function ask(question){
   if (used >= MONTHLY_QUOTA) {
     addMsg('bot', "You've used all 50 questions for this month. Your quota resets on the 1st.");
@@ -105,24 +150,35 @@ async function ask(question){
   history.push({role:'user', text:question});
   const bubble = addMsg('bot', '<span class="typing">Thinking…</span>');
   setLoading(true);
+  let session = null;
+  if (supabaseClient) { const s = await supabaseClient.auth.getSession(); session = s.data.session; }
+  if (!session) {
+    bubble.innerHTML = '<div class="who">Assistant</div>Sign in first, above — then ask again. If you have not subscribed yet, use the subscribe links below and pay with the same email you signed in with.';
+    setLoading(false); return;
+  }
   try {
-    let answer;
-    if (BACKEND_URL) {
-      const r = await fetch(BACKEND_URL, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({question, history: history.slice(-10)})
-      });
-      if (!r.ok) throw new Error('backend ' + r.status);
-      answer = (await r.json()).answer;
-    } else {
-      throw new Error('preview-mode');
+    const r = await fetch(BACKEND_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + session.access_token},
+      body: JSON.stringify({question, history: history.slice(-10)})
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      const msg = r.status === 402 ? 'No active subscription found for this account. Subscribe with the same email you signed in with, then try again.'
+        : r.status === 429 ? 'You have used all 50 questions for this month. Your quota resets on the 1st.'
+        : r.status === 401 ? 'Your sign-in expired — sign out and sign in again, then retry.'
+        : r.status === 502 ? 'Assistant unavailable right now (backend / Gemini problem) — try again shortly.'
+        : ('Assistant error (' + r.status + '): ' + (err.error || 'try again shortly.'));
+      bubble.innerHTML = '<div class="who">Assistant</div>' + msg;
+      setLoading(false); return;
     }
+    const data = await r.json();
+    const answer = data.answer;
     bubble.innerHTML = '<div class="who">Assistant</div>' + answer.replace(/</g,'&lt;').replace(/\n/g,'<br>');
     history.push({role:'assistant', text:answer});
-    used++; renderQuota(); saveState();
+    used = typeof data.used === 'number' ? data.used : used + 1; renderQuota(); saveState();
   } catch(e) {
-    bubble.innerHTML = '<div class="who">Assistant</div>Preview mode — the live backend connects here when it ships. Your question was: <i>' +
-      question.replace(/</g,'&lt;') + '</i>';
+    bubble.innerHTML = '<div class="who">Assistant</div>Could not reach the assistant — check your connection and try again.';
   }
   setLoading(false);
 }
@@ -147,7 +203,7 @@ document.getElementById('btn-history').onclick = () => {
   addMsg('bot', items);
 };
 
-if (!SUBSCRIBED) document.getElementById('subscribe-cta').style.display = 'block';
+// subscribe CTA visibility is set by refreshAuth() from the live session
 renderQuota();
 addMsg('bot', "I'm the Citizen AI Legal Assistant. Ask me about legal processes, your rights, or our document templates — I answer from our curated law library. What's on your mind?");
 </script>
