@@ -150,7 +150,7 @@ async function ask(question){
   }
   addMsg('user', question);
   history.push({role:'user', text:question});
-  const bubble = addMsg('bot', '<span class="typing">Thinking…</span>');
+  const bubble = addMsg('bot', 'Thinking…');
   setLoading(true);
   let session = null;
   if (supabaseClient) { const s = await supabaseClient.auth.getSession(); session = s.data.session; }
@@ -199,9 +199,9 @@ document.getElementById('btn-templates').onclick = () =>
 document.getElementById('btn-history').onclick = () => {
   if (!history.length) { addMsg('bot', "No saved conversations yet."); return; }
   const items = history.slice(-10).map(h =>
-    '<b>' + (h.role === 'user' ? 'You' : 'Assistant') + ':</b> ' +
+    (h.role === 'user' ? 'You' : 'Assistant') + ': ' +
     h.text.replace(/</g,'&lt;').slice(0, 120) + (h.text.length > 120 ? '…' : '')
-  ).join('<br><br>');
+  ).join('\n\n');
   addMsg('bot', items);
 };
 
