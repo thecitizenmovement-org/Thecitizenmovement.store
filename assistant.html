@@ -82,6 +82,7 @@
 /* CONFIG — point BACKEND_URL at the Supabase Edge Function when it ships.
    Until then the page runs in preview mode against the local demo. */
 const BACKEND_URL = "https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/legal-assistant"; // wired 2026-10-13
+const DOCUMENT_PULL_URL = "https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/document-pull"; // gate deployment 2026-10-31: documents come from the private bucket, never raw GitHub
 const MONTHLY_QUOTA = 50;
 let SUBSCRIBED = false;
 const SUPABASE_URL = "https://jesrbqrwbacuirwxbkis.supabase.co";
@@ -309,14 +310,26 @@ async function ask(question){
       setLoading(false); return;
     }
     try {
-      const raw = await fetch('https://raw.githubusercontent.com/thecitizenmovement-org/Thecitizenmovement.store/main/templates/' + (tpl.file || ''));
+      const raw = await fetch(DOCUMENT_PULL_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer ' + session.access_token,'apikey':SUPABASE_ANON_KEY},
+        body: JSON.stringify({file: tpl.file || ''})
+      });
+      if (raw.status === 402) throw new Error('tier');
       if (!raw.ok) throw new Error('fetch failed');
-      const text = await raw.text();
+      const data = await raw.json();
+      const text = data.text || '';
+      if (!text) throw new Error('empty document');
       bubble.innerHTML = '<div class="who">Assistant</div>' + tpl.title + ' — document from the members library (Template Pack / Pro tier).<br><br>' + text.replace(/</g,'&lt;').replace(/\n/g,'<br>') + '<br><br>General information only — not legal advice. Consult a licensed attorney for your situation.';
       history.push({role:'assistant', text:text});
     } catch(e) {
-      bubble.innerHTML = '<div class="who">Assistant</div>Could not pull that document right now — try again shortly. ' + tpl.answer.replace(/</g,'&lt;').replace(/\n/g,'<br>');
-      history.push({role:'assistant', text:tpl.answer});
+      if (e.message === 'tier') {
+        bubble.innerHTML = '<div class="who">Assistant</div>Documents and printables are the $25 Template Pack tier (Pro includes them). ' + tierLabel() + ' Buy the Template Pack with the same email you signed in with, then ask again.';
+        history.push({role:'assistant', text:'Documents require the $25 Template Pack or $50 Pro tier.'});
+      } else {
+        bubble.innerHTML = '<div class="who">Assistant</div>Could not pull that document right now — try again shortly. ' + tpl.answer.replace(/</g,'&lt;').replace(/\n/g,'<br>');
+        history.push({role:'assistant', text:tpl.answer});
+      }
     }
     setLoading(false); saveState(); return;
   }
