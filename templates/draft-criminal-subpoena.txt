@@ -1,0 +1,69 @@
+CRIMINAL SUBPOENA — REQUEST AND SUBPOENA DUCES TECUM GUIDE
+CALIFORNIA PENAL CODE SECTIONS 1326-1327
+THE CITIZEN MOVEMENT — GENERAL LEGAL INFORMATION ONLY, NOT LEGAL ADVICE
+
+INSTRUCTIONS: This is a guide and draft request, not a substitute
+for the subpoena form itself. In a criminal case, a subpoena may be
+signed and issued by, among others, a magistrate or clerk, the
+district attorney or investigator, the public defender or
+investigator, the clerk of the court (who, on application of the
+defendant and without charge, shall issue as many blank subpoenas
+for witnesses in the state as the defendant may require), or the
+attorney of record for the defendant (Penal Code 1326(a)). Two
+types: subpoena ad testificandum (compels testimony) and subpoena
+duces tecum (compels production of records / things). No good-cause
+affidavit is required to ISSUE a criminal subpoena duces tecum, but
+to DEFEND it against a motion to quash you must then show good
+cause — more than a mere desire for all information — and the court
+balances factors including relevance, specificity, and burden (see
+Facebook, Inc. v. Superior Court (2020) for the third-party
+subpoena factors). Serve properly, allow time for compliance or
+objection, and be ready for an in-camera review dispute over
+privileged or sensitive records. Consult a licensed attorney before
+subpoenaing medical, communications, or other sensitive records.
+
+REQUEST TO CLERK FOR BLANK SUBPOENAS — FILL IN:
+To the Clerk, Superior Court of California, County of [___]:
+Defendant [name], Case No. [___], requests [number] blank
+subpoena(s) for witnesses in the state, under Penal Code 1326(a)(3),
+for trial / hearing on [date, department].
+Signed: [Defendant / attorney of record, date].
+
+SUBPOENA DUCES TECUM — FILL IN (USE THE COURT'S SUBPOENA FORM):
+THE PEOPLE OF THE STATE OF CALIFORNIA, TO: [Person / entity /
+custodian of records, name and address].
+YOU ARE COMMANDED to appear in Superior Court of California,
+County of [___], Department [___], on [date, time], and to bring
+with you the following records / things, described with specificity:
+[Describe each item separately — e.g., "1. [Record type, date
+range, subject]." Do not demand "all records" without limits.]
+These records are sought because: [Relevance — how each item could
+lead to admissible evidence or support a defense, in plain terms.
+This section is your good-cause showing if the subpoena is
+challenged, so be specific.]
+Service: Serve a copy on the witness / custodian and, as required,
+on the opposing party, and file proof of service. Note the
+appearance date, the place for production, and any objection
+deadline the court or local rules set.
+
+IF THE SUBPOENA IS CHALLENGED (MOTION TO QUASH) — BE READY TO SHOW:
+1. Relevance and materiality to a defense or issue in the case.
+2. Specificity — the request is narrowly described, not a fishing
+   expedition.
+3. That the records are not available from a less burdensome source.
+4. That privilege, privacy, or a statute (including the Stored
+   Communications Act for electronic communications) does not bar
+   production, or that any protected portion can be redacted or
+   reviewed in camera.
+
+WARNING: Failure to obey a properly served subpoena can result in
+contempt proceedings. Do not use a subpoena to harass a witness or
+to obtain records you know are privileged without a court order.
+
+SOURCES TO CHECK BEFORE FILING:
+- Penal Code 1326-1327 — Justia / California Legislative Information
+- Alford v. Superior Court (2003) 29 Cal.4th 1033; Facebook, Inc.
+  v. Superior Court (2020) 10 Cal.5th 1001 (third-party subpoena
+  good-cause factors)
+
+END OF TEMPLATE — GENERAL INFORMATION ONLY, NOT LEGAL ADVICE.
