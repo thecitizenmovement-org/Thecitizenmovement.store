@@ -1,0 +1,79 @@
+PITCHESS MOTION — DISCOVERY OF PEACE OFFICER PERSONNEL RECORDS
+CALIFORNIA EVIDENCE CODE SECTIONS 1043-1045; PENAL CODE 832.7-832.8
+THE CITIZEN MOVEMENT — GENERAL LEGAL INFORMATION ONLY, NOT LEGAL ADVICE
+
+INSTRUCTIONS: A Pitchess motion asks the court to review a peace or
+custodial officer's personnel records in chambers and disclose only
+records relevant to the pending case. It is a discovery motion in a
+pending criminal case, not a public-records request and not a way to
+obtain an officer's full file. The good-cause affidavit is the most
+important part — without it, the court will not reach in-camera
+review. File in the criminal case, serve the agency that holds the
+records, and follow the criminal court's local rules and hearing
+schedule. Consult a licensed attorney; defense counsel ordinarily
+prepares the good-cause declaration.
+
+STATUTE: Evidence Code 1043(b) — the written motion must include:
+(1) identification of the proceeding, the party seeking discovery,
+the officer whose records are sought, the agency with custody and
+control, and the hearing time and place; (2) a description of the
+type of records sought; (3) affidavits showing good cause, setting
+forth materiality to the pending litigation and stating upon
+reasonable belief that the agency has the records. Evidence Code
+1045 — if good cause is shown, the court examines the records in
+chambers (in camera) and excludes, among other things, complaints
+more than five years old, investigators' conclusions, and facts so
+remote as to be of little practical benefit.
+
+GOOD CAUSE — TWO PARTS, BOTH REQUIRED:
+1. MATERIALITY: Propose a defense, and explain how the records sought
+   could lead to relevant evidence or admissible direct or
+   impeachment evidence supporting that defense. A scenario of
+   officer misconduct that could or might have occurred is enough
+   at this stage — you need not prove the misconduct happened.
+2. REASONABLE BELIEF: State, on reasonable belief (which may rest on
+   rational inference), that the agency identified has the type of
+   records sought. You need not prove a particular record exists.
+
+CAPTION — FILL IN:
+People of the State of California v. [Defendant name], Case No.
+[___], Superior Court of California, County of [___].
+Notice of Motion and Motion for Discovery of Peace Officer Personnel
+Records (Pitchess Motion, Evid. Code 1043).
+
+MOTION — FILL IN:
+Defendant moves for an order requiring [agency name], custodian of
+records for Officer [name, badge/ID if known], to produce for
+in-camera review: [describe the type of records sought — e.g.,
+"prior citizen complaints alleging dishonesty, false reports, or
+excessive force," with a time period]. Hearing date/time/department:
+[___]. Notice to the agency and proof of service are attached.
+
+DECLARATION SHOWING GOOD CAUSE — FILL IN:
+I, [declarant name, role], declare:
+1. The pending charges are [charges, case number].
+2. The defense is [proposed defense, in plain terms].
+3. The facts supporting the defense scenario are [specific facts:
+   what the defendant says happened, with dates and places].
+4. Records of the type described above, if they exist, would be
+   material because [how they could support the defense or impeach
+   the officer's account].
+5. On reasonable belief, [agency] has custody of such records
+   because [basis for belief: the agency employs the officer, keeps
+   personnel/complaint files under Penal Code 832.5, etc.].
+I declare under penalty of perjury that the foregoing is true and
+correct. Signed: [Name, date, place].
+
+REQUESTED ORDER:
+Defendant asks the court to find good cause, conduct an in-camera
+review under Evidence Code 1045, and disclose all relevant records
+and the names/addresses of complainants and witnesses for disclosed
+complaints, as the statute allows.
+
+SOURCES TO CHECK BEFORE FILING:
+- Evidence Code 1043-1045; Penal Code 832.7-832.8 — Justia /
+  California Legislative Information
+- Pitchess v. Superior Court (1974) 11 Cal.3d 531; Warrick v.
+  Superior Court (2005) 35 Cal.4th 1011 (good-cause standard)
+
+END OF TEMPLATE — GENERAL INFORMATION ONLY, NOT LEGAL ADVICE.
