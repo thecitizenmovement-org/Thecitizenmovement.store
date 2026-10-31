@@ -17,6 +17,12 @@
   (Evid. Code 1043-1045), suppression motion (Pen. Code 1538.5),
   habeas corpus petition (Pen. Code 1473; 28 U.S.C. 2254), CPRA
   enforcement writ (Gov. Code 7923.000 et seq.).
+- Installed 2026-10-31 (appeals batch, 1, Hana-researched, draft
+  status): notice of appeal with opening-brief outline — California
+  civil/criminal and federal civil/criminal deadlines (CRC 8.104,
+  8.308, 8.853, 8.822; FRAP 4), record designation, and post-notice
+  steps. CPRA orders are excluded: they are writ-reviewed under
+  Gov. Code 7923.500, not by ordinary appeal.
 - Status: DRAFT texts, not finished PDFs and not legal advice.
   Where a court requires its own official form, the template says
   so — use the official form. Check current law and local court
