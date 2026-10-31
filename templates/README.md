@@ -18,9 +18,15 @@
 - Installed 2026-10-31 (Robert batch, item 2 of 3, official-form
   rule): CJP pair — explainer-sheet-cjp-complaint.txt (jurisdiction,
   misconduct vs ruling error, official cjp.ca.gov route) and
-  filing-sheet-cjp-complaint.txt (assistant filing sheet with
-  contents checklist and traps). The official CJP form itself is
-  NOT recreated; customers use the form at cjp.ca.gov.
+  filing-sheet-cjp-complaint.txt.
+- Installed 2026-10-31 (Robert batch, item 3 of 3, official-form
+  rule): custody/visitation modification pair —
+  explainer-sheet-custody-visitation-modification.txt (FL-300 /
+  FL-311 / FL-320, Fam. Code 3011 best interest + Montenegro
+  significant-change standard, CCRC) and
+  filing-sheet-custody-visitation-modification.txt. Custody/
+  visitation modification only; DVRO, support, and other family
+  forms remain separate work.
 - Each new filing item is installed as a draft + filing-sheet pair
   (or explainer + filing-sheet pair where an official form applies).
 - Official-form rule: for items needing official papers, provide a

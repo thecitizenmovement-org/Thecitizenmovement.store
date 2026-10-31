@@ -1,0 +1,63 @@
+ASSISTANT FILING SHEET — MODIFYING CUSTODY / VISITATION
+For the AI assistant to present to a paying customer alongside
+explainer-sheet-custody-visitation-modification.txt. General
+information only, not legal advice. Use the official Judicial
+Council forms — this sheet is not a form.
+
+WHAT THIS IS FOR:
+Asking the family court to change an existing child custody or
+visitation (parenting time) order — the schedule, legal custody,
+physical custody, or both.
+
+WHO FILES IT:
+A parent in the existing family-law case, in the court that issued
+the current order, using the existing case number.
+
+OFFICIAL ROUTE — DO THIS FIRST:
+1. Get FL-300 (Request for Order), FL-311 (Custody/Visitation
+   Attachment), and, for the other parent, FL-320 (Responsive
+   Declaration) from courts.ca.gov or the court clerk.
+2. File FL-300 + FL-311 + supporting declaration in the issuing
+   court.
+3. Serve the other parent as the FL-300 instructions and local
+   rules require — verify the service deadline against your
+   court's instructions, do not guess it.
+4. Attend Child Custody Recommending Counseling (CCRC) if the
+   parents cannot agree, then attend the hearing.
+
+WHAT GOES IN IT — CHECKLIST:
+[ ] Existing order: date, court, current legal/physical custody
+    and schedule
+[ ] Exact new orders wanted (FL-311): legal custody, physical
+    custody, weekly schedule, holidays, transportation, exchange
+[ ] Changed circumstances since the last order: numbered facts,
+    dates, documents, witnesses — tied to the child's welfare
+[ ] Best-interest showing under Family Code 3011: health, safety,
+    welfare, abuse history, contact with each parent, substance use
+[ ] Efforts to resolve without court, and why they did not work
+[ ] Declaration signed under penalty of perjury
+
+WHAT HAPPENS AFTER FILING:
+- The other parent may file FL-320 in response.
+- CCRC is scheduled if custody/visitation is contested.
+- At the hearing the judge decides on best interest, and, for a
+  final order, on significant change of circumstances as well.
+- Only a signed court order changes the existing order — a verbal
+  or private agreement does not.
+
+COMMON TRAPS:
+- Refiling on facts already decided.
+- Asking for a custody-label change on a schedule-only showing,
+  or vice versa — match the standard to what you are actually
+  asking to change.
+- Filing a private agreement and assuming the order changed.
+- Skipping CCRC or service — both can delay or defeat the request.
+- Filing where abuse, relocation, or a restraining order is
+  involved without legal advice.
+
+PAIR WITH (SAME LIBRARY):
+- Challenging a ruling: draft-notice-of-appeal.txt.
+- Records to support the declaration: CPRA / dispatch-log
+  templates where public records are involved.
+
+END OF FILING SHEET — GENERAL INFORMATION ONLY, NOT LEGAL ADVICE.
