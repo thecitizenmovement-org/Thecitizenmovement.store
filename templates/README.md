@@ -11,13 +11,18 @@
   forms index, TR-205 statement draft, TR-220 trial de novo guide);
   criminal defense motions batch (5: demurrer, bail reduction,
   speedy-trial dismissal, continuance, criminal subpoena guide).
-- Installed 2026-10-31 (Robert / judge-challenge batch, item 1 of 3,
-  Hana-researched from official sources, draft status): judge
-  disqualification pair — draft-judge-disqualification.txt (CCP
-  170.1 for-cause statement + 170.6 peremptory affidavit) and
-  filing-sheet-judge-disqualification.txt (assistant filing sheet:
-  route choice, deadlines, contents, service, traps). Each new
-  filing item is installed as a draft + filing-sheet pair.
+- Installed 2026-10-31 (Robert / judge-challenge batch, item 1 of 3):
+  judge disqualification pair — draft-judge-disqualification.txt
+  (CCP 170.1 for-cause statement + 170.6 peremptory affidavit) and
+  filing-sheet-judge-disqualification.txt.
+- Installed 2026-10-31 (Robert batch, item 2 of 3, official-form
+  rule): CJP pair — explainer-sheet-cjp-complaint.txt (jurisdiction,
+  misconduct vs ruling error, official cjp.ca.gov route) and
+  filing-sheet-cjp-complaint.txt (assistant filing sheet with
+  contents checklist and traps). The official CJP form itself is
+  NOT recreated; customers use the form at cjp.ca.gov.
+- Each new filing item is installed as a draft + filing-sheet pair
+  (or explainer + filing-sheet pair where an official form applies).
 - Official-form rule: for items needing official papers, provide a
   link to the official paper and an explainer sheet in the repo —
   do not recreate the official form. Generic items get a full
