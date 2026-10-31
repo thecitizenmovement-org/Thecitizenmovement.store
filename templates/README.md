@@ -8,13 +8,16 @@
   fact sheets); movement-core batch (6: 1983, writ mandate,
   Pitchess, suppression, habeas, CPRA enforcement); appeals batch
   (1: notice of appeal); traffic batch (3, in templates/traffic/:
-  forms index, TR-205 statement draft, TR-220 trial de novo guide).
-- Installed 2026-10-31 (criminal defense motions batch, 5,
-  Hana-researched from official sources, draft status): demurrer
-  (Pen. Code 1004), bail reduction (Pen. Code 1275, 1289; In re
-  Humphrey), speedy-trial dismissal (Pen. Code 1382; Serna motion),
-  continuance (Pen. Code 1050), criminal subpoena / subpoena duces
-  tecum guide (Pen. Code 1326-1327).
+  forms index, TR-205 statement draft, TR-220 trial de novo guide);
+  criminal defense motions batch (5: demurrer, bail reduction,
+  speedy-trial dismissal, continuance, criminal subpoena guide).
+- Installed 2026-10-31 (Robert / judge-challenge batch, item 1 of 3,
+  Hana-researched from official sources, draft status): judge
+  disqualification pair — draft-judge-disqualification.txt (CCP
+  170.1 for-cause statement + 170.6 peremptory affidavit) and
+  filing-sheet-judge-disqualification.txt (assistant filing sheet:
+  route choice, deadlines, contents, service, traps). Each new
+  filing item is installed as a draft + filing-sheet pair.
 - Official-form rule: for items needing official papers, provide a
   link to the official paper and an explainer sheet in the repo —
   do not recreate the official form. Generic items get a full
