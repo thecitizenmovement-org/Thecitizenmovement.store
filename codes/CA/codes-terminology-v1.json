@@ -1,0 +1,197 @@
+{
+  "version": "1.0",
+  "name": "Citizen Movement Law Library \u2014 Codes & Terminology (v1, common charges)",
+  "disclaimer": "General information only \u2014 not legal advice. Summaries are plain-language, not verbatim statute text unless quoted. Check the current California Penal Code at California Legislative Information (leginfo.legislature.ca.gov) and consult a licensed attorney for your situation. Statutes change; verify before filing or relying on a code in court.",
+  "source": "California Legislative Information (leginfo.legislature.ca.gov), Penal Code; store Law Library templates and fact sheets.",
+  "codes": [
+    {
+      "code": "PC 187",
+      "title": "Murder",
+      "keywords": [
+        "murder",
+        "187",
+        "homicide",
+        "penal code for murder"
+      ],
+      "summary": "Murder is the unlawful killing of a human being, or a fetus, with malice aforethought. PC 187(a) (quoted from leginfo). Subdivision (b) carves out certain acts, including lawful abortion and acts by a physician to save the pregnant person's life.",
+      "source": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PEN&division&title=8.&part=1.&chapter=1.&article"
+    },
+    {
+      "code": "PC 188",
+      "title": "Malice \u2014 express or implied",
+      "keywords": [
+        "malice",
+        "malice aforethought",
+        "express malice",
+        "implied malice"
+      ],
+      "summary": "For PC 187, malice may be express or implied. Express malice is a manifested deliberate intention to unlawfully take away the life of a fellow creature. Implied malice is when no considerable provocation appears, or the circumstances show an abandoned and malignant heart.",
+      "source": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PEN&division&title=8.&part=1.&chapter=1.&article"
+    },
+    {
+      "code": "PC 189",
+      "title": "Degrees of murder",
+      "keywords": [
+        "first degree murder",
+        "second degree murder",
+        "degrees of murder",
+        "felony murder"
+      ],
+      "summary": "First-degree murder includes willful, deliberate, and premeditated killing, and killing by specified means (including destructive device, explosive, weapon of mass destruction, knowing use of ammunition designed primarily to penetrate metal or armor, lying in wait, or torture), and felony-murder as defined in the section. All other murder is second-degree murder.",
+      "source": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PEN&division&title=8.&part=1.&chapter=1.&article"
+    },
+    {
+      "code": "PC 190",
+      "title": "Punishment for first-degree murder",
+      "keywords": [
+        "punishment for murder",
+        "sentence for murder",
+        "first degree punishment"
+      ],
+      "summary": "A person guilty of murder in the first degree shall be punished by death, imprisonment in state prison for life without the possibility of parole, or imprisonment in state prison for 25 years to life, as determined under PC 190.1\u2013190.5.",
+      "source": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PEN&division&title=8.&part=1.&chapter=1.&article"
+    },
+    {
+      "code": "PC 211",
+      "title": "Robbery",
+      "keywords": [
+        "robbery",
+        "211"
+      ],
+      "summary": "Robbery is the felonious taking of personal property in the possession of another, from his person or immediate presence, and against his will, accomplished by means of force or fear."
+    },
+    {
+      "code": "PC 240",
+      "title": "Assault",
+      "keywords": [
+        "assault",
+        "240",
+        "simple assault"
+      ],
+      "summary": "Assault is an unlawful attempt, coupled with a present ability, to commit a violent injury on the person of another."
+    },
+    {
+      "code": "PC 245",
+      "title": "Assault with a deadly weapon",
+      "keywords": [
+        "assault with a deadly weapon",
+        "adw",
+        "245",
+        "deadly weapon assault"
+      ],
+      "summary": "Assault upon another person with a deadly weapon or instrument other than a firearm, with a firearm, or by any means of force likely to produce great bodily injury. Often charged as a wobbler (misdemeanor or felony)."
+    },
+    {
+      "code": "PC 422",
+      "title": "Criminal threats",
+      "keywords": [
+        "criminal threats",
+        "422",
+        "terrorist threats",
+        "threats"
+      ],
+      "summary": "It is illegal to willfully threaten to commit a crime that will result in death or great bodily injury, with the specific intent that the statement be taken as a threat, where the threat is unequivocal, unconditional, immediate, and specific, and causes the person threatened reasonably to be in sustained fear for their own safety or their immediate family's safety. No actual intent to carry it out is required.",
+      "source": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PEN&division=&title=11.5.&part=1.&chapter=&article="
+    },
+    {
+      "code": "PC 459",
+      "title": "Burglary",
+      "keywords": [
+        "burglary",
+        "459"
+      ],
+      "summary": "Entering a structure (house, room, apartment, shop, warehouse, etc.) with the intent to commit theft or any felony inside. First-degree burglary is generally an inhabited dwelling; second-degree is generally commercial."
+    },
+    {
+      "code": "PC 484 / 488",
+      "title": "Petty theft",
+      "keywords": [
+        "petty theft",
+        "484",
+        "488",
+        "shoplifting"
+      ],
+      "summary": "Theft is the taking and carrying away of personal property of another, without consent, with intent to permanently deprive the owner. Petty theft generally applies to property valued at $950 or less."
+    },
+    {
+      "code": "PC 487",
+      "title": "Grand theft",
+      "keywords": [
+        "grand theft",
+        "487"
+      ],
+      "summary": "Grand theft generally applies when the stolen property is valued over $950, or when specific items (such as automobiles or firearms) are taken, as defined in the section."
+    },
+    {
+      "code": "PC 148",
+      "title": "Resisting, delaying, or obstructing a peace officer",
+      "keywords": [
+        "resisting arrest",
+        "148",
+        "obstructing",
+        "delaying an officer"
+      ],
+      "summary": "Resisting, delaying, or obstructing a peace officer in the performance of their duties. Most often charged as a misdemeanor, though circumstances can affect charging and sentencing."
+    },
+    {
+      "code": "PC 273.5",
+      "title": "Corporal injury to spouse / domestic violence",
+      "keywords": [
+        "domestic violence",
+        "273.5",
+        "corporal injury",
+        "spouse abuse"
+      ],
+      "summary": "It is illegal to willfully inflict corporal injury resulting in a traumatic condition on a spouse, former spouse, cohabitant, former cohabitant, or the mother or father of one's child. A traumatic condition can be as minor as slight swelling or redness. Can be charged as a misdemeanor or felony."
+    },
+    {
+      "code": "PC 273.6",
+      "title": "Violation of a protective / restraining order",
+      "keywords": [
+        "violating a restraining order",
+        "273.6",
+        "protective order violation",
+        "violating a protective order"
+      ],
+      "summary": "An intentional and knowing violation of a protective order is usually a misdemeanor, punishable by up to one year in county jail and/or a fine, with felony exposure on certain priors or circumstances."
+    }
+  ],
+  "terminology": [
+    {
+      "term": "Malice aforethought",
+      "definition": "The mental state required for murder under PC 187: express malice (deliberate intention to kill) or implied malice (no considerable provocation, or circumstances showing an abandoned and malignant heart). See PC 188."
+    },
+    {
+      "term": "Wobbler",
+      "definition": "An offense that can be charged as either a misdemeanor or a felony, depending on the facts, the defendant's record, and the prosecutor's charging decision. Examples include PC 245 and PC 273.5."
+    },
+    {
+      "term": "Traumatic condition",
+      "definition": "In PC 273.5, a condition of the body such as a wound or external or internal injury, whether of a minor or serious nature, caused by physical force. It can be as minor as slight swelling or redness."
+    },
+    {
+      "term": "Sustained fear",
+      "definition": "In PC 422, fear for one's own safety or immediate family's safety that is more than momentary or fleeting \u2014 a fear that continues over a period of time as a result of the threat."
+    },
+    {
+      "term": "Great bodily injury (GBI)",
+      "definition": "A significant or substantial physical injury, more than minor or moderate harm. Used in PC 245, PC 422, and other sections."
+    },
+    {
+      "term": "CPRA",
+      "definition": "California Public Records Act \u2014 the state law (Government Code \u00a7 7920 et seq.) giving the public the right to inspect and obtain copies of public records held by state and local agencies, with exemptions."
+    },
+    {
+      "term": "FOIA",
+      "definition": "Freedom of Information Act (5 U.S.C. \u00a7 552) \u2014 the federal law giving the public the right to request records held by federal agencies, with exemptions."
+    },
+    {
+      "term": "DVRO / TRO",
+      "definition": "Domestic Violence Restraining Order / Temporary Restraining Order \u2014 court orders that can restrain contact, harassment, and set stay-away terms. A DVRO is generally issued after a hearing; a TRO is temporary until that hearing."
+    },
+    {
+      "term": "CLETS",
+      "definition": "California Law Enforcement Telecommunications System \u2014 the statewide system through which restraining orders and other law-enforcement records are entered and checked."
+    }
+  ]
+}

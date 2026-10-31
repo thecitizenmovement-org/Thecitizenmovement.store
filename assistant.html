@@ -51,6 +51,7 @@
   <input type="file" id="file" accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg">
 </div>
 <div class="quota">Questions used this month: <strong id="used">0</strong> / 50</div>
+<div style="text-align:center;color:var(--muted);font-size:.78rem;padding:0 8px 8px">Library answers are free — they use no Gemini questions and need no sign-in. Gemini answers are for signed-in members only.</div>
 <div id="chat"></div>
 <div id="auth-box" style="max-width:760px;width:100%;margin:0 auto;padding:12px 16px;text-align:center">
   <p id="auth-status" style="color:var(--muted);font-size:.85rem;margin-bottom:8px">Sign in to use the assistant. Join free first, then subscribe — use the same email for sign-up and for Stripe checkout.</p>
@@ -143,7 +144,104 @@ document.getElementById('btn-signout').onclick = async () => { await supabaseCli
 refreshAuth();
 if (supabaseClient) supabaseClient.auth.onAuthStateChange(() => refreshAuth());
 
+
+/* LIBRARY BOT — local-first, no Gemini call, no quota use.
+   Answers only from the store Law Library / Free Fact Sheets already on
+   thecitizenmovement.store. If no entry matches, ask() falls through to
+   the Gemini backend (paid members only, as before). */
+const LIBRARY = [
+  {id:'cpra', title:'California Public Records Act Request', link:'printables/cpra-request-template.pdf',
+   keys:['cpra','public records request','california public records','records request'],
+   answer:'California Public Records Act (CPRA) request — from the Law Library, no Gemini question used.\n\n1. Address it right: send it to the agency that holds the records, to its public records / records custodian.\n2. Describe the records clearly: what they are, the dates, and the incident, address, or case they relate to.\n3. Include your contact info: name, mailing address, and email or phone for the response.\n4. Send it and keep a copy: email or mail, and keep the sent copy and any delivery proof with your records.\n5. Watch the deadline: the agency must respond within the time the law allows, even if only to say more time is needed.\n6. If it is denied or delayed: ask in writing for the specific exemption or reason, and keep that reply for your next step.\n\nTemplate: California Public Records Act Request (printables/cpra-request-template.pdf).'},
+  {id:'dispatch', title:'Police Dispatch / CAD Call-Log Request', link:'printables/dispatch-log-request-template.pdf',
+   keys:['dispatch','cad','call log','911 audio','911 recording','dispatch log'],
+   answer:'Police Dispatch / CAD Call-Log Request — from the Law Library, no Gemini question used.\n\nThis is the CPRA template for dispatch logs, 911 audio, and a preservation demand. Use it to ask the agency that holds the logs for the dispatch record, the CAD log, and any 911 audio for a specific incident, date, and address, and to ask that the audio be preserved.\n\nTemplate: Police Dispatch / CAD Call-Log Request (printables/dispatch-log-request-template.pdf).'},
+  {id:'foia', title:'Federal FOIA Request', link:'printables/foia-request-template.pdf',
+   keys:['foia','federal records','federal foia'],
+   answer:'Federal FOIA Request — from the Law Library, no Gemini question used.\n\nThis is the federal FOIA template letter (5 U.S.C. § 552) for records held by a federal agency. Describe the records, the dates, and the agency that holds them, and include your contact info for the response.\n\nTemplate: Federal FOIA Request (printables/foia-request-template.pdf).'},
+  {id:'motion', title:'Notice of Motion', link:'printables/motion-template.pdf',
+   keys:['notice of motion','motion template'],
+   answer:'Notice of Motion — from the Law Library, no Gemini question used.\n\nThis is the general pleading-format template for a notice of motion. Fill in the court, case, hearing date and time, and the relief you are asking for, following the format in the template.\n\nTemplate: Notice of Motion (printables/motion-template.pdf).'},
+  {id:'proof', title:'Proof of Service', link:'printables/proof-of-service-template.pdf',
+   keys:['proof of service','proof of serving'],
+   answer:'Proof of Service — from the Law Library, no Gemini question used.\n\nThis is the general template for proving a document was served: who served it, on whom, when, where, and how. Complete it after service and keep a copy with your records.\n\nTemplate: Proof of Service (printables/proof-of-service-template.pdf).'},
+  {id:'arrest', title:'After an Arrest (Free Fact Sheet)', link:'',
+   keys:['after an arrest','arrested','first 72 hours'],
+   answer:'After an Arrest — Free Fact Sheet, from the Law Library, no Gemini question used.\n\nFirst 72 hours: what happens, what to say, what not to sign. See the Free Fact Sheets section on the store home page for the full sheet.'},
+  {id:'deadlines', title:'Know Your Deadlines (Free Fact Sheet)', link:'',
+   keys:['deadline','deadlines','statute of limitations','time limit','appeal deadline'],
+   answer:'Know Your Deadlines — Free Fact Sheet, from the Law Library, no Gemini question used.\n\nThe clocks that run on claims, appeals, and records requests. Deadlines depend on the type of claim and the agency or court involved, so check the specific deadline for your matter before you file — do not guess it. See the Free Fact Sheets section on the store home page for the full sheet.'},
+  {id:'document', title:'Document Everything (Free Fact Sheet)', link:'',
+   keys:['document everything','build a record','how to document','gather evidence'],
+   answer:'Document Everything — Free Fact Sheet, from the Law Library, no Gemini question used.\n\nHow to build a record that holds up: notes, photos, timelines, witnesses. Keep dates, keep originals, and keep a copy of everything you send and receive. See the Free Fact Sheets section on the store home page for the full sheet.'},
+  {id:'encounters', title:'Police Encounters (Free Fact Sheet)', link:'',
+   keys:['police encounter','traffic stop','pulled over','stop and search','searches','police stop','stopped by police'],
+   answer:'Police Encounters — Free Fact Sheet, from the Law Library, no Gemini question used.\n\nStops, searches, and your rights on the street and at the door. See the Free Fact Sheets section on the store home page for the full sheet.'},
+  {id:'jail', title:'Jail Rights (Free Fact Sheet)', link:'',
+   keys:['jail rights','jail medical','inmate grievance'],
+   answer:'Jail Rights — Free Fact Sheet, from the Law Library, no Gemini question used.\n\nMedical care, grievances, and contacting the outside from inside. See the Free Fact Sheets section on the store home page for the full sheet.'},
+  {id:'plea', title:'Plea Waivers (Free Fact Sheet)', link:'',
+   keys:['plea waiver','plea waivers','plead guilty','sign a plea'],
+   answer:'Plea Waivers — Free Fact Sheet, from the Law Library, no Gemini question used.\n\nWhat you actually give up when you sign — read it before court, not after. See the Free Fact Sheets section on the store home page for the full sheet.'}
+];
+const CODES = [
+{id:"PC 187", title:"Murder", keys:["murder", "187", "homicide", "penal code for murder"], answer:"PC 187 \u2014 Murder \u2014 from the Codes Database v1, no Gemini question used.\n\nMurder is the unlawful killing of a human being, or a fetus, with malice aforethought. PC 187(a) (quoted from leginfo). Subdivision (b) carves out certain acts, including lawful abortion and acts by a physician to save the pregnant person's life. \n\nSource: https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PEN&division&title=8.&part=1.&chapter=1.&article"},
+{id:"PC 188", title:"Malice \u2014 express or implied", keys:["malice", "malice aforethought", "express malice", "implied malice"], answer:"PC 188 \u2014 Malice \u2014 express or implied \u2014 from the Codes Database v1, no Gemini question used.\n\nFor PC 187, malice may be express or implied. Express malice is a manifested deliberate intention to unlawfully take away the life of a fellow creature. Implied malice is when no considerable provocation appears, or the circumstances show an abandoned and malignant heart. \n\nSource: https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PEN&division&title=8.&part=1.&chapter=1.&article"},
+{id:"PC 189", title:"Degrees of murder", keys:["first degree murder", "second degree murder", "degrees of murder", "felony murder"], answer:"PC 189 \u2014 Degrees of murder \u2014 from the Codes Database v1, no Gemini question used.\n\nFirst-degree murder includes willful, deliberate, and premeditated killing, and killing by specified means (including destructive device, explosive, weapon of mass destruction, knowing use of ammunition designed primarily to penetrate metal or armor, lying in wait, or torture), and felony-murder as defined in the section. All other murder is second-degree murder. \n\nSource: https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PEN&division&title=8.&part=1.&chapter=1.&article"},
+{id:"PC 190", title:"Punishment for first-degree murder", keys:["punishment for murder", "sentence for murder", "first degree punishment"], answer:"PC 190 \u2014 Punishment for first-degree murder \u2014 from the Codes Database v1, no Gemini question used.\n\nA person guilty of murder in the first degree shall be punished by death, imprisonment in state prison for life without the possibility of parole, or imprisonment in state prison for 25 years to life, as determined under PC 190.1\u2013190.5. \n\nSource: https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PEN&division&title=8.&part=1.&chapter=1.&article"},
+{id:"PC 211", title:"Robbery", keys:["robbery", "211"], answer:"PC 211 \u2014 Robbery \u2014 from the Codes Database v1, no Gemini question used.\n\nRobbery is the felonious taking of personal property in the possession of another, from his person or immediate presence, and against his will, accomplished by means of force or fear."},
+{id:"PC 240", title:"Assault", keys:["assault", "240", "simple assault"], answer:"PC 240 \u2014 Assault \u2014 from the Codes Database v1, no Gemini question used.\n\nAssault is an unlawful attempt, coupled with a present ability, to commit a violent injury on the person of another."},
+{id:"PC 245", title:"Assault with a deadly weapon", keys:["assault with a deadly weapon", "adw", "245", "deadly weapon assault"], answer:"PC 245 \u2014 Assault with a deadly weapon \u2014 from the Codes Database v1, no Gemini question used.\n\nAssault upon another person with a deadly weapon or instrument other than a firearm, with a firearm, or by any means of force likely to produce great bodily injury. Often charged as a wobbler (misdemeanor or felony)."},
+{id:"PC 422", title:"Criminal threats", keys:["criminal threats", "422", "terrorist threats", "threats"], answer:"PC 422 \u2014 Criminal threats \u2014 from the Codes Database v1, no Gemini question used.\n\nIt is illegal to willfully threaten to commit a crime that will result in death or great bodily injury, with the specific intent that the statement be taken as a threat, where the threat is unequivocal, unconditional, immediate, and specific, and causes the person threatened reasonably to be in sustained fear for their own safety or their immediate family's safety. No actual intent to carry it out is required. \n\nSource: https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PEN&division=&title=11.5.&part=1.&chapter=&article="},
+{id:"PC 459", title:"Burglary", keys:["burglary", "459"], answer:"PC 459 \u2014 Burglary \u2014 from the Codes Database v1, no Gemini question used.\n\nEntering a structure (house, room, apartment, shop, warehouse, etc.) with the intent to commit theft or any felony inside. First-degree burglary is generally an inhabited dwelling; second-degree is generally commercial."},
+{id:"PC 484 / 488", title:"Petty theft", keys:["petty theft", "484", "488", "shoplifting"], answer:"PC 484 / 488 \u2014 Petty theft \u2014 from the Codes Database v1, no Gemini question used.\n\nTheft is the taking and carrying away of personal property of another, without consent, with intent to permanently deprive the owner. Petty theft generally applies to property valued at $950 or less."},
+{id:"PC 487", title:"Grand theft", keys:["grand theft", "487"], answer:"PC 487 \u2014 Grand theft \u2014 from the Codes Database v1, no Gemini question used.\n\nGrand theft generally applies when the stolen property is valued over $950, or when specific items (such as automobiles or firearms) are taken, as defined in the section."},
+{id:"PC 148", title:"Resisting, delaying, or obstructing a peace officer", keys:["resisting arrest", "148", "obstructing", "delaying an officer"], answer:"PC 148 \u2014 Resisting, delaying, or obstructing a peace officer \u2014 from the Codes Database v1, no Gemini question used.\n\nResisting, delaying, or obstructing a peace officer in the performance of their duties. Most often charged as a misdemeanor, though circumstances can affect charging and sentencing."},
+{id:"PC 273.5", title:"Corporal injury to spouse / domestic violence", keys:["domestic violence", "273.5", "corporal injury", "spouse abuse"], answer:"PC 273.5 \u2014 Corporal injury to spouse / domestic violence \u2014 from the Codes Database v1, no Gemini question used.\n\nIt is illegal to willfully inflict corporal injury resulting in a traumatic condition on a spouse, former spouse, cohabitant, former cohabitant, or the mother or father of one's child. A traumatic condition can be as minor as slight swelling or redness. Can be charged as a misdemeanor or felony."},
+{id:"PC 273.6", title:"Violation of a protective / restraining order", keys:["violating a restraining order", "273.6", "protective order violation", "violating a protective order"], answer:"PC 273.6 \u2014 Violation of a protective / restraining order \u2014 from the Codes Database v1, no Gemini question used.\n\nAn intentional and knowing violation of a protective order is usually a misdemeanor, punishable by up to one year in county jail and/or a fine, with felony exposure on certain priors or circumstances."},
+{id:"Malice aforethought", title:"Malice aforethought", keys:["malice aforethought"], answer:"Malice aforethought \u2014 from the Terminology Database v1, no Gemini question used.\n\nThe mental state required for murder under PC 187: express malice (deliberate intention to kill) or implied malice (no considerable provocation, or circumstances showing an abandoned and malignant heart). See PC 188."},
+{id:"Wobbler", title:"Wobbler", keys:["wobbler"], answer:"Wobbler \u2014 from the Terminology Database v1, no Gemini question used.\n\nAn offense that can be charged as either a misdemeanor or a felony, depending on the facts, the defendant's record, and the prosecutor's charging decision. Examples include PC 245 and PC 273.5."},
+{id:"Traumatic condition", title:"Traumatic condition", keys:["traumatic condition"], answer:"Traumatic condition \u2014 from the Terminology Database v1, no Gemini question used.\n\nIn PC 273.5, a condition of the body such as a wound or external or internal injury, whether of a minor or serious nature, caused by physical force. It can be as minor as slight swelling or redness."},
+{id:"Sustained fear", title:"Sustained fear", keys:["sustained fear"], answer:"Sustained fear \u2014 from the Terminology Database v1, no Gemini question used.\n\nIn PC 422, fear for one's own safety or immediate family's safety that is more than momentary or fleeting \u2014 a fear that continues over a period of time as a result of the threat."},
+{id:"Great bodily injury (GBI)", title:"Great bodily injury (GBI)", keys:["great bodily injury (gbi)"], answer:"Great bodily injury (GBI) \u2014 from the Terminology Database v1, no Gemini question used.\n\nA significant or substantial physical injury, more than minor or moderate harm. Used in PC 245, PC 422, and other sections."},
+{id:"CPRA", title:"CPRA", keys:["cpra"], answer:"CPRA \u2014 from the Terminology Database v1, no Gemini question used.\n\nCalifornia Public Records Act \u2014 the state law (Government Code \u00a7 7920 et seq.) giving the public the right to inspect and obtain copies of public records held by state and local agencies, with exemptions."},
+{id:"FOIA", title:"FOIA", keys:["foia"], answer:"FOIA \u2014 from the Terminology Database v1, no Gemini question used.\n\nFreedom of Information Act (5 U.S.C. \u00a7 552) \u2014 the federal law giving the public the right to request records held by federal agencies, with exemptions."},
+{id:"DVRO / TRO", title:"DVRO / TRO", keys:["dvro / tro"], answer:"DVRO / TRO \u2014 from the Terminology Database v1, no Gemini question used.\n\nDomestic Violence Restraining Order / Temporary Restraining Order \u2014 court orders that can restrain contact, harassment, and set stay-away terms. A DVRO is generally issued after a hearing; a TRO is temporary until that hearing."},
+{id:"CLETS", title:"CLETS", keys:["clets"], answer:"CLETS \u2014 from the Terminology Database v1, no Gemini question used.\n\nCalifornia Law Enforcement Telecommunications System \u2014 the statewide system through which restraining orders and other law-enforcement records are entered and checked."}
+];
+function codesMatch(n){
+  let best=null, bestScore=0;
+  for (const e of CODES) { let sc=0; for (const k of e.keys) { if (n.includes(k)) sc += k.length; } if (sc > bestScore) { bestScore=sc; best=e; } }
+  return bestScore > 0 ? best : null;
+}
+function libraryMatch(q){
+  const n = ' ' + q.toLowerCase().replace(/[^a-z0-9 ]/g,' ') + ' ';
+  const code = codesMatch(n); if (code) return code;
+  let best = null, bestScore = 0;
+  for (const e of LIBRARY) {
+    let s = 0;
+    for (const k of e.keys) { if (n.includes(' ' + k + ' ') || n.includes(k)) s += k.length; }
+    if (s > bestScore) { bestScore = s; best = e; }
+  }
+  if (bestScore >= 4) return best;
+  if (n.includes('template')) {
+    return {title:'Law Library templates', link:'',
+      answer:'Law Library templates — from the Law Library, no Gemini question used.\n\n- California Public Records Act Request (printables/cpra-request-template.pdf)\n- Police Dispatch / CAD Call-Log Request (printables/dispatch-log-request-template.pdf)\n- Federal FOIA Request (printables/foia-request-template.pdf)\n- Notice of Motion (printables/motion-template.pdf)\n- Proof of Service (printables/proof-of-service-template.pdf)\n\nAsk for one by name (for example: “CPRA request”) and I will walk you through it.'};
+  }
+  return null;
+}
+
 async function ask(question){
+  // LIBRARY FIRST: answer locally, no sign-in, no Gemini call, no quota use.
+  const lib = libraryMatch(question);
+  if (lib) {
+    addMsg('user', question);
+    history.push({role:'user', text:question});
+    addMsg('bot', lib.answer + '\n\nGeneral information only — not legal advice. Consult a licensed attorney for your situation.');
+    history.push({role:'assistant', text:lib.answer});
+    saveState();
+    return;
+  }
   if (used >= MONTHLY_QUOTA) {
     addMsg('bot', "You've used all 50 questions for this month. Your quota resets on the 1st.");
     return;
@@ -207,7 +305,7 @@ document.getElementById('btn-history').onclick = () => {
 
 // subscribe CTA visibility is set by refreshAuth() from the live session
 renderQuota();
-addMsg('bot', "I'm the Citizen AI Legal Assistant. Ask me about legal processes, your rights, or our document templates — I answer from our curated law library. What's on your mind?");
+addMsg('bot', "I'm the Citizen AI Legal Assistant. I check our Law Library first — templates, walkthroughs, and fact sheets — and answer those locally, free, with no Gemini question used. For anything not in the library, signed-in members get a Gemini-assisted answer. What's on your mind?");
 </script>
 </body>
 </html>
