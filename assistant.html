@@ -127,20 +127,44 @@ async function refreshAuth(){
   if (session) { await loadTiers(); document.getElementById('auth-status').textContent = 'Signed in as ' + session.user.email + ' — ' + tierLabel() + ' Your tier is checked on every question.'; } else { MY_TIERS = []; document.getElementById('auth-status').textContent = 'Sign in to use the assistant. Join free first, then subscribe — use the same email for sign-up and for Stripe checkout.'; }
 }
 async function authGo(mode){
-  const email = document.getElementById('auth-email').value.trim();
-  const pass = document.getElementById('auth-pass').value;
+  const emailEl = document.getElementById('auth-email');
+  const passEl = document.getElementById('auth-pass');
+  const btn = document.getElementById('btn-signin');
   const st = document.getElementById('auth-status');
+  const email = emailEl ? emailEl.value.trim() : '';
+  const pass = passEl ? passEl.value : '';
   if (!email || !pass) { st.textContent = 'Enter email and password.'; return; }
+  if (!supabaseClient) { st.textContent = 'Sign-in library failed to load — check connection and reload.'; return; }
   st.textContent = mode === 'join' ? 'Creating your account…' : 'Signing you in…';
-  const r = mode === 'join'
-    ? await supabaseClient.auth.signUp({ email, password: pass })
-    : await supabaseClient.auth.signInWithPassword({ email, password: pass });
-  if (r.error) { st.textContent = r.error.message; return; }
-  if (mode === 'join' && !r.data.session) { st.textContent = 'Check your email to confirm, then sign in.'; return; }
-  await refreshAuth();
+  if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; }
+  try {
+    const attempt = mode === 'join'
+      ? supabaseClient.auth.signUp({ email, password: pass })
+      : supabaseClient.auth.signInWithPassword({ email, password: pass });
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 20000));
+    const r = await Promise.race([attempt, timeout]);
+    if (r.error) { st.textContent = r.error.message; return; }
+    if (mode === 'join' && !r.data.session) { st.textContent = 'Check your email to confirm, then sign in.'; return; }
+    await refreshAuth();
+  } catch (e) {
+    st.textContent = e && e.message === 'timeout'
+      ? 'Sign-in timed out — check connection and try again. Your account is unchanged.'
+      : 'Sign-in failed — check connection and try again. ' + (e && e.message ? e.message : '');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
+  }
 }
-document.getElementById('btn-signin').onclick = () => authGo('login');
-document.getElementById('btn-join').onclick = () => authGo('join');
+function bindAuth(){
+  const signin = document.getElementById('btn-signin');
+  const join = document.getElementById('btn-join');
+  if (signin) signin.addEventListener('click', (e) => { e.preventDefault(); authGo('login'); });
+  if (join) join.addEventListener('click', (e) => { e.preventDefault(); authGo('join'); });
+  ['auth-email', 'auth-pass'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); authGo('login'); } });
+  });
+}
+bindAuth();
 document.getElementById('btn-signout').onclick = async () => { await supabaseClient.auth.signOut(); await refreshAuth(); };
 refreshAuth();
 if (supabaseClient) supabaseClient.auth.onAuthStateChange(() => refreshAuth());
