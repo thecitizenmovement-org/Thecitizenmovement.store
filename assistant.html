@@ -344,7 +344,7 @@ async function ask(question){
       const data = await raw.json();
       const text = data.text || '';
       if (!text) throw new Error('empty document');
-      bubble.innerHTML = '<div class="who">Assistant</div>' + tpl.title + ' — document from the members library (Template Pack / Pro tier).<br><br>' + text.replace(/</g,'&lt;').replace(/\n/g,'<br>') + '<br><br>General information only — not legal advice. Consult a licensed attorney for your situation.';
+      bubble.innerHTML = '<div class="who">Assistant</div>' + tpl.title + ' — document from the members library (Template Pack / Pro tier).<br><br>' + text.replace(/</g,'&lt;').replace(/\n/g,'<br>') + '';
       history.push({role:'assistant', text:text});
     } catch(e) {
       if (e.message === 'tier') {
