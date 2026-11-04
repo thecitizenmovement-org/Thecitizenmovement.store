@@ -50,7 +50,8 @@
   <button id="btn-history" title="Show saved conversations">🕘 History</button>
   <input type="file" id="file" accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg">
 </div>
-<div style="text-align:center;color:var(--muted);font-size:.78rem;padding:0 8px 8px">Library answers need no sign-in. AI answers are for signed-in members only.</div>
+<div style="text-align:center;color:var(--muted);font-size:.78rem;padding:0 8px 8px">Browse the law library yourself — answers from this site require sign-in and a purchased pack.</div>
+<div style="text-align:center;color:var(--muted);font-size:.78rem;padding:0 8px 12px">Law library links: <a href="https://www.law.cornell.edu/">Cornell LII</a> · <a href="https://law.justia.com/">Justia</a> · <a href="https://leginfo.legislature.ca.gov/">California Legislative Information</a> · <a href="https://constitution.congress.gov/">Constitution Annotated</a> · <a href="https://www.uscourts.gov/">U.S. Courts</a></div>
 <div id="chat"></div>
 <div id="auth-box" style="max-width:760px;width:100%;margin:0 auto;padding:12px 16px;text-align:center">
   <p id="auth-status" style="color:var(--muted);font-size:.85rem;margin-bottom:8px">Sign in to use the assistant. Join first, then subscribe — use the same email for sign-up and for Stripe checkout.</p>
@@ -366,7 +367,22 @@ function libraryMatch(q){
 }
 
 async function ask(question){
-  // LIBRARY FIRST: answer locally, no sign-in, no AI call, no quota use.
+  // GATE (2026-11-03): no answers without sign-in + a purchased pack.
+  // Signed-out visitors get library links only, so they can look it up themselves.
+  let gateSession = null;
+  if (supabaseClient) { const s = await supabaseClient.auth.getSession(); gateSession = s.data.session; }
+  if (!gateSession) {
+    addMsg('user', question);
+    addMsg('bot', 'Answers from this site require sign-in and a purchased pack. In the meantime, look it up yourself in the law library: Cornell LII (law.cornell.edu), Justia (law.justia.com), California Legislative Information (leginfo.legislature.ca.gov), Constitution Annotated (constitution.congress.gov), U.S. Courts (uscourts.gov). Sign in above, then subscribe with the same email you signed in with.');
+    return;
+  }
+  if (!Array.isArray(MY_TIERS)) await loadTiers();
+  if (!MY_TIERS.length) {
+    addMsg('user', question);
+    addMsg('bot', 'Answers from this site require a purchased pack on this account. No paid tier was found — subscribe below with the same email you signed in with, then ask again. In the meantime, look it up yourself: Cornell LII (law.cornell.edu), Justia (law.justia.com), California Legislative Information (leginfo.legislature.ca.gov).');
+    return;
+  }
+  // LIBRARY FIRST: answer locally for members, no AI call.
   const lib = libraryMatch(question);
   if (lib) {
     addMsg('user', question);
