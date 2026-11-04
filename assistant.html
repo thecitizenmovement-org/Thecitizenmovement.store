@@ -98,6 +98,13 @@ let used = parseInt(localStorage.getItem('cq_used') || '0', 10);
 let history = JSON.parse(localStorage.getItem('cq_history') || '[]');
 
 function renderQuota(){ if (usedEl) usedEl.textContent = used; }
+function logLibraryAnswer(){
+  fetch('https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/stats', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({source:'library'})})
+    .then(r => r.json())
+    .then(d => { const el = document.getElementById('global-answered'); if (el && typeof d.questions_answered === 'number') el.textContent = d.questions_answered; })
+    .catch(() => {});
+}
+
 function saveState(){
   localStorage.setItem('cq_used', String(used));
   localStorage.setItem('cq_history', JSON.stringify(history.slice(-50)));
@@ -366,7 +373,7 @@ async function ask(question){
     history.push({role:'user', text:question});
     addMsg('bot', lib.answer + '\n\nGeneral information only — not legal advice. Consult a licensed attorney for your situation.');
     history.push({role:'assistant', text:lib.answer});
-    saveState();
+    saveState(); logLibraryAnswer();
     return;
   }
   if (used >= MONTHLY_QUOTA) {
@@ -414,7 +421,7 @@ async function ask(question){
       const text = data.text || '';
       if (!text) throw new Error('empty document');
       bubble.innerHTML = '<div class="who">Assistant</div>' + tpl.title + ' — document from the members library (Template Pack / Pro tier).<br><br>' + text.replace(/</g,'&lt;').replace(/\n/g,'<br>') + '';
-      history.push({role:'assistant', text:text});
+      history.push({role:'assistant', text:text}); logLibraryAnswer();
     } catch(e) {
       if (e.message === 'tier') {
         bubble.innerHTML = '<div class="who">Assistant</div>Documents and printables are the $25 Template Pack tier (Pro includes them). ' + tierLabel() + ' Buy the Template Pack with the same email you signed in with, then ask again.';
@@ -433,7 +440,7 @@ async function ask(question){
     }
     bubble.innerHTML = '<div class="who">Assistant</div>' + tpl.answer.replace(/</g,'&lt;').replace(/\n/g,'<br>') + '<br><br>General information only — not legal advice. Consult a licensed attorney for your situation.';
     history.push({role:'assistant', text:tpl.answer});
-    setLoading(false); saveState(); return;
+    setLoading(false); saveState(); logLibraryAnswer(); return;
   }
   if (!canAI()) {
     bubble.innerHTML = '<div class="who">Assistant</div>AI answers are the $15 Assistant tier (Pro includes them). ' + tierLabel() + ' Subscribe with the same email you signed in with, then ask again.';
