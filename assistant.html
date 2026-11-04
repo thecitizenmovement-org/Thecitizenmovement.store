@@ -50,7 +50,6 @@
   <button id="btn-history" title="Show saved conversations">🕘 History</button>
   <input type="file" id="file" accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg">
 </div>
-<div class="quota">Questions used this month: <strong id="used">0</strong> / 50</div>
 <div style="text-align:center;color:var(--muted);font-size:.78rem;padding:0 8px 8px">Library answers are free and need no sign-in. AI answers are for signed-in members only.</div>
 <div id="chat"></div>
 <div id="auth-box" style="max-width:760px;width:100%;margin:0 auto;padding:12px 16px;text-align:center">
@@ -70,8 +69,9 @@
   <button id="send">Ask</button>
 </div>
 <div class="subscribe-cta" id="subscribe-cta" style="display:none">
-  <p style="margin-bottom:12px;color:var(--muted)">Two tiers. Both include 50 questions/month and the full law library.</p>
+  <p style="margin-bottom:12px;color:var(--muted)">Three tiers. All include the full law library.</p>
   <p style="margin-bottom:8px"><a href="https://buy.stripe.com/8x25kwecOfmO0Tjgw45wI01">Assistant — $15/month</a></p>
+  <p style="margin-bottom:8px"><a href="https://buy.stripe.com/fZu5kw6Km7UmatT0x65wI00">Template Pack — $25 one-time</a></p>
   <p style="color:var(--muted);font-size:.8rem;margin-bottom:12px">Conversations + document reference assistance</p>
   <p style="margin-bottom:8px"><a href="https://buy.stripe.com/4gM00c0lY0rU8lL5Rq5wI02">Assistant Pro — $50/month</a></p>
   <p style="color:var(--muted);font-size:.8rem">Document upload review + hands-on filing assistance + template walkthroughs.<br>We file your CPRA/FOIA requests by email (5/month, max 2 per agency).</p>
@@ -83,7 +83,7 @@
    Until then the page runs in preview mode against the local demo. */
 const BACKEND_URL = "https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/legal-assistant"; // wired 2026-10-13
 const DOCUMENT_PULL_URL = "https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/document-pull"; // gate deployment 2026-10-31: documents come from the private bucket, never raw GitHub
-const MONTHLY_QUOTA = 50;
+const MONTHLY_QUOTA = Infinity; // cap removed 2026-11-03
 let SUBSCRIBED = false;
 const SUPABASE_URL = "https://jesrbqrwbacuirwxbkis.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implc3JicXJ3YmFjdWlyd3hia2lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2NTU2OTcsImV4cCI6MjEwNzIzMTY5N30._LCnNC2JIjijt6n0u3kKestF5G2Zsjju4hEv1d1tImc";
@@ -96,7 +96,7 @@ const usedEl = document.getElementById('used');
 let used = parseInt(localStorage.getItem('cq_used') || '0', 10);
 let history = JSON.parse(localStorage.getItem('cq_history') || '[]');
 
-function renderQuota(){ usedEl.textContent = used; }
+function renderQuota(){ if (usedEl) usedEl.textContent = used; }
 function saveState(){
   localStorage.setItem('cq_used', String(used));
   localStorage.setItem('cq_history', JSON.stringify(history.slice(-50)));
