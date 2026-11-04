@@ -85,7 +85,6 @@
    Until then the page runs in preview mode against the local demo. */
 const BACKEND_URL = "https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/legal-assistant"; // wired 2026-10-13
 const DOCUMENT_PULL_URL = "https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/document-pull"; // gate deployment 2026-10-31: documents come from the private bucket, never raw GitHub
-const MONTHLY_QUOTA = Infinity; // cap removed 2026-11-03
 let SUBSCRIBED = false;
 const SUPABASE_URL = "https://jesrbqrwbacuirwxbkis.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implc3JicXJ3YmFjdWlyd3hia2lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2NTU2OTcsImV4cCI6MjEwNzIzMTY5N30._LCnNC2JIjijt6n0u3kKestF5G2Zsjju4hEv1d1tImc";
@@ -392,10 +391,6 @@ async function ask(question){
     saveState(); logLibraryAnswer();
     return;
   }
-  if (used >= MONTHLY_QUOTA) {
-    addMsg('bot', "You've used all 50 questions for this month. Your quota resets on the 1st.");
-    return;
-  }
   addMsg('user', question);
   history.push({role:'user', text:question});
   const bubble = addMsg('bot', 'Thinking…');
@@ -471,7 +466,6 @@ async function ask(question){
     if (!r.ok) {
       const err = await r.json().catch(() => ({}));
       const msg = r.status === 402 ? 'No active subscription found for this account. Subscribe with the same email you signed in with, then try again.'
-        : r.status === 429 ? 'You have used all 50 questions for this month. Your quota resets on the 1st.'
         : r.status === 401 ? 'Sign-in check failed (' + (err.error || 'no backend message') + ') — sign out and sign in again, then retry.'
         : r.status === 502 ? 'Assistant is offline at this time.'
         : ('Assistant error (' + r.status + '): ' + (err.error || 'try again shortly.'));
