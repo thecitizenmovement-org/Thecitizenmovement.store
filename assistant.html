@@ -69,7 +69,7 @@
   <button id="send">Ask</button>
 </div>
 <div class="subscribe-cta" id="subscribe-cta" style="display:none">
-  <div style="text-align:center;color:var(--muted);font-size:.78rem;padding:8px">Questions answered: <strong id="used">0</strong></div>
+  <div style="text-align:center;color:var(--muted);font-size:.78rem;padding:8px">Questions answered by the movement store: <strong id="global-answered">…</strong></div>
   <p style="margin-bottom:12px;color:var(--muted)">Three tiers. All include the full law library.</p>
   <p style="margin-bottom:8px"><a href="https://buy.stripe.com/8x25kwecOfmO0Tjgw45wI01">Assistant — $15/month</a></p>
   <p style="margin-bottom:8px"><a href="https://buy.stripe.com/fZu5kw6Km7UmatT0x65wI00">Template Pack — $25 one-time</a></p>
@@ -459,7 +459,11 @@ async function ask(question){
     const answer = data.answer;
     bubble.innerHTML = '<div class="who">Assistant</div>' + answer.replace(/</g,'&lt;').replace(/\n/g,'<br>');
     history.push({role:'assistant', text:answer});
-    used = typeof data.used === 'number' ? data.used : used + 1; renderQuota(); saveState();
+    used = typeof data.used === 'number' ? data.used : used + 1; renderQuota();
+fetch('https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/stats')
+  .then(r => r.json())
+  .then(d => { const el = document.getElementById('global-answered'); if (el && typeof d.questions_answered === 'number') el.textContent = d.questions_answered; })
+  .catch(() => {}); saveState();
   } catch(e) {
     bubble.innerHTML = '<div class="who">Assistant</div>Could not reach the assistant — check your connection and try again.';
   }
