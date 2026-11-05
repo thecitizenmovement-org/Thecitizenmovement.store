@@ -65,6 +65,25 @@
     <button id="btn-signout" style="display:none;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:20px;padding:10px 18px;cursor:pointer">Sign out</button>
   </div>
 </div>
+<div id="profile-panel" style="display:none;max-width:760px;width:100%;margin:12px auto;padding:16px;text-align:left;border:1px solid rgba(198,164,93,.3);border-radius:12px">
+  <h3 style="margin:0 0 8px">Your member profile (optional)</h3>
+  <p style="color:var(--muted);font-size:.85rem;margin:0 0 12px">Every item is optional. Fill in what you want, at any time — add, change, or remove it at any time. Saved items are used only to fill forms with the information you provided, in the proper blanks, when you choose the fill option. Nothing is invented or guessed. You review any filled form before it is filed.</p>
+  <div style="display:grid;gap:8px">
+    <input id="pf-full_name" placeholder="Full name (optional)">
+    <input id="pf-address" placeholder="Address (optional)">
+    <input id="pf-incident_date" type="date" placeholder="Date of incident (optional)">
+    <input id="pf-date_of_birth" type="date" placeholder="Date of birth (optional)">
+    <input id="pf-incident_location" placeholder="Location of incidents (optional)">
+    <input id="pf-county" placeholder="County (optional)">
+    <input id="pf-state" placeholder="State (optional)">
+    <input id="pf-zip_code" placeholder="ZIP code (optional)">
+    <input id="pf-case_number" placeholder="Case number (Pro members only, when necessary)" style="display:none">
+  </div>
+  <p id="pf-msg" style="color:var(--muted);font-size:.85rem"></p>
+  <button id="btn-profile-save" style="background:var(--gold);border:none;color:#111;border-radius:20px;padding:10px 18px;font-weight:700;cursor:pointer">Save profile</button>
+  <button id="btn-profile-clear" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:20px;padding:10px 18px;cursor:pointer">Clear all saved fields</button>
+  <p style="color:var(--muted);font-size:.8rem;margin-top:8px"><a href="https://thecitizenmovement.com/info-member-profile.html">Your member profile — optional information</a> · Legal assistance for pro se (self-represented) litigants — not legal advice.</p>
+</div>
 <div id="composer">
   <input id="input" type="text" placeholder="Ask about a legal process, a form, your rights…" autocomplete="off">
   <button id="send">Ask</button>
@@ -124,6 +143,27 @@ function setLoading(on){
 }
 
 
+
+async function loadProfile(){
+  const panel=document.getElementById('profile-panel'); if(!panel||!supabaseClient) return;
+  const {data}=await supabaseClient.auth.getSession(); if(!data.session){panel.style.display='none';return;}
+  panel.style.display='block';
+  const cn=document.getElementById('pf-case_number'); if(cn) cn.style.display=canFilled()?'block':'none';
+  const r=await supabaseClient.from('profiles').select('full_name,address,incident_date,date_of_birth,incident_location,county,state,zip_code,case_number').eq('id',data.session.user.id).maybeSingle();
+  if(!r.error&&r.data){for(const k of ['full_name','address','incident_date','date_of_birth','incident_location','county','state','zip_code','case_number']){const el=document.getElementById('pf-'+k); if(el) el.value=r.data[k]||'';}}
+}
+async function saveProfile(clear){
+  const msg=document.getElementById('pf-msg'); const {data}=await supabaseClient.auth.getSession(); if(!data.session){msg.textContent='Sign in first.';return;}
+  const vals={id:data.session.user.id,email:data.session.user.email};
+  for(const k of ['full_name','address','incident_date','date_of_birth','incident_location','county','state','zip_code','case_number']){const el=document.getElementById('pf-'+k); vals[k]=clear?'':(el?el.value.trim()||null:null);}
+  if(!canFilled()) vals.case_number=null;
+  const r=await supabaseClient.from('profiles').upsert(vals,{onConflict:'id'});
+  msg.textContent=r.error?('Save failed: '+r.error.message):(clear?'All saved fields cleared.':'Profile saved. Case number is kept only for Pro members — the database clears it otherwise.');
+  if(!r.error&&clear){for(const k of ['full_name','address','incident_date','date_of_birth','incident_location','county','state','zip_code','case_number']){const el=document.getElementById('pf-'+k); if(el) el.value='';}}
+}
+document.getElementById('btn-profile-save')?.addEventListener('click',()=>saveProfile(false));
+document.getElementById('btn-profile-clear')?.addEventListener('click',()=>saveProfile(true));
+
 async function refreshAuth(){
   if (!supabaseClient) { document.getElementById('auth-status').textContent = 'Sign-in library failed to load — check connection and reload.'; return; }
   const { data } = await supabaseClient.auth.getSession();
@@ -132,7 +172,7 @@ async function refreshAuth(){
   document.getElementById('subscribe-cta').style.display = session ? 'none' : 'block';
   document.getElementById('auth-form').style.display = session ? 'none' : 'flex';
   document.getElementById('btn-signout').style.display = session ? 'inline-block' : 'none';
-  if (session) { await loadTiers(); document.getElementById('auth-status').textContent = 'Signed in as ' + session.user.email + ' — ' + tierLabel() + ' Your tier is checked on every question.'; } else { MY_TIERS = []; document.getElementById('auth-status').textContent = 'Sign in to use the assistant. Join first, then subscribe — use the same email for sign-up and for Stripe checkout.'; }
+  if (session) { await loadTiers(); await loadProfile(); document.getElementById('auth-status').textContent = 'Signed in as ' + session.user.email + ' — ' + tierLabel() + ' Your tier is checked on every question.'; } else { MY_TIERS = []; document.getElementById('auth-status').textContent = 'Sign in to use the assistant. Join first, then subscribe — use the same email for sign-up and for Stripe checkout.'; }
 }
 async function authGo(mode){
   const emailEl = document.getElementById('auth-email');
