@@ -128,6 +128,35 @@ function saveState(){
   localStorage.setItem('cq_used', String(used));
   localStorage.setItem('cq_history', JSON.stringify(history.slice(-50)));
 }
+/* CONVERSATION HISTORY — server-side (2026-11-06).
+   Every message is also saved to public.assistant_messages so a member
+   sees past conversations on any device after signing in. localStorage
+   stays as a fast local mirror. DB writes are fire-and-forget: a failed
+   insert never blocks the chat and never shows an error to the user. */
+function pushHist(role, text){
+  history.push({role:role, text:text});
+  if (!supabaseClient) return;
+  supabaseClient.auth.getSession().then(function(r){
+    var s = r && r.data && r.data.session;
+    if (!s) return;
+    supabaseClient.from('assistant_messages').insert({user_id: s.user.id, role: role, text: text}).then(function(){}, function(){});
+  }).catch(function(){});
+}
+async function loadHistory(){
+  if (!supabaseClient) return;
+  try {
+    var r = await supabaseClient.auth.getSession();
+    var s = r && r.data && r.data.session;
+    if (!s) return;
+    var q = await supabaseClient.from('assistant_messages').select('role,text').eq('user_id', s.user.id).order('created_at', {ascending: false}).limit(50);
+    if (q.error || !Array.isArray(q.data)) return;
+    history = q.data.map(function(m){ return {role: m.role, text: m.text}; }).reverse();
+    chat.innerHTML = '';
+    history.forEach(function(m){ addMsg(m.role === 'user' ? 'user' : 'bot', m.text); });
+    if (!history.length) addMsg('bot', "I'm the Citizen AI Legal Assistant. I check our Law Library first — templates, walkthroughs, and fact sheets — and answer those locally, free. For anything not in the library, signed-in members get a AI-assisted answer. What's on your mind?");
+    saveState();
+  } catch (e) { /* fall back silently to localStorage history */ }
+}
 function addMsg(who, text){
   const d = document.createElement('div');
   d.className = 'msg ' + who;
@@ -172,7 +201,7 @@ async function refreshAuth(){
   document.getElementById('subscribe-cta').style.display = session ? 'none' : 'block';
   document.getElementById('auth-form').style.display = session ? 'none' : 'flex';
   document.getElementById('btn-signout').style.display = session ? 'inline-block' : 'none';
-  if (session) { await loadTiers(); await loadProfile(); document.getElementById('auth-status').textContent = 'Signed in as ' + session.user.email + ' — ' + tierLabel() + ' Your tier is checked on every question.'; } else { MY_TIERS = []; document.getElementById('auth-status').textContent = 'Sign in to use the assistant. Join first, then subscribe — use the same email for sign-up and for Stripe checkout.'; }
+  if (session) { await loadTiers(); await loadProfile(); await loadHistory(); document.getElementById('auth-status').textContent = 'Signed in as ' + session.user.email + ' — ' + tierLabel() + ' Your tier is checked on every question.'; } else { MY_TIERS = []; document.getElementById('auth-status').textContent = 'Sign in to use the assistant. Join first, then subscribe — use the same email for sign-up and for Stripe checkout.'; }
 }
 async function authGo(mode){
   const emailEl = document.getElementById('auth-email');
@@ -213,7 +242,7 @@ function bindAuth(){
   });
 }
 bindAuth();
-document.getElementById('btn-signout').onclick = async () => { await supabaseClient.auth.signOut(); await refreshAuth(); };
+document.getElementById('btn-signout').onclick = async () => { await supabaseClient.auth.signOut(); history = []; chat.innerHTML = ''; localStorage.removeItem('cq_history'); await refreshAuth(); };
 refreshAuth();
 if (supabaseClient) supabaseClient.auth.onAuthStateChange(() => refreshAuth());
 
@@ -425,14 +454,14 @@ async function ask(question){
   const lib = libraryMatch(question);
   if (lib) {
     addMsg('user', question);
-    history.push({role:'user', text:question});
+    pushHist({role:'user', text:question});
     addMsg('bot', lib.answer + '\n\nGeneral information only — not legal advice. Consult a licensed attorney for your situation.');
-    history.push({role:'assistant', text:lib.answer});
+    pushHist({role:'assistant', text:lib.answer});
     saveState(); logLibraryAnswer();
     return;
   }
   addMsg('user', question);
-  history.push({role:'user', text:question});
+  pushHist({role:'user', text:question});
   const bubble = addMsg('bot', 'Thinking…');
   setLoading(true);
   let session = null;
@@ -452,7 +481,7 @@ async function ask(question){
       setLoading(false); return;
     }
     bubble.innerHTML = '<div class="who">Assistant</div>Filled-document generation for Pro members is not yet wired as an automatic step — for now I will give you the document itself (Pro includes Templates), then you can reply with your details and I will walk through filling it. ' + tpl.answer.replace(/</g,'&lt;').replace(/\n/g,'<br>') + '<br><br>General information only — not legal advice. Consult a licensed attorney for your situation.';
-    history.push({role:'assistant', text:tpl.answer});
+    pushHist({role:'assistant', text:tpl.answer});
     setLoading(false); saveState(); return;
   }
   if (wantsDoc) {
@@ -472,14 +501,14 @@ async function ask(question){
       const text = data.text || '';
       if (!text) throw new Error('empty document');
       bubble.innerHTML = '<div class="who">Assistant</div>' + tpl.title + ' — document from the members library (Template Pack / Pro tier).<br><br>' + text.replace(/</g,'&lt;').replace(/\n/g,'<br>') + '';
-      history.push({role:'assistant', text:text}); logLibraryAnswer();
+      pushHist({role:'assistant', text:text}); logLibraryAnswer();
     } catch(e) {
       if (e.message === 'tier') {
         bubble.innerHTML = '<div class="who">Assistant</div>Documents and printables are the $25 Template Pack tier (Pro includes them). ' + tierLabel() + ' Buy the Template Pack with the same email you signed in with, then ask again.';
-        history.push({role:'assistant', text:'Documents require the $25 Template Pack or $50 Pro tier.'});
+        pushHist({role:'assistant', text:'Documents require the $25 Template Pack or $50 Pro tier.'});
       } else {
         bubble.innerHTML = '<div class="who">Assistant</div>Could not pull that document right now — try again shortly. ' + tpl.answer.replace(/</g,'&lt;').replace(/\n/g,'<br>');
-        history.push({role:'assistant', text:tpl.answer});
+        pushHist({role:'assistant', text:tpl.answer});
       }
     }
     setLoading(false); saveState(); return;
@@ -490,7 +519,7 @@ async function ask(question){
       setLoading(false); return;
     }
     bubble.innerHTML = '<div class="who">Assistant</div>' + tpl.answer.replace(/</g,'&lt;').replace(/\n/g,'<br>') + '<br><br>General information only — not legal advice. Consult a licensed attorney for your situation.';
-    history.push({role:'assistant', text:tpl.answer});
+    pushHist({role:'assistant', text:tpl.answer});
     setLoading(false); saveState(); logLibraryAnswer(); return;
   }
   if (!canAI()) {
@@ -515,7 +544,7 @@ async function ask(question){
     const data = await r.json();
     const answer = data.answer;
     bubble.innerHTML = '<div class="who">Assistant</div>' + answer.replace(/</g,'&lt;').replace(/\n/g,'<br>');
-    history.push({role:'assistant', text:answer});
+    pushHist({role:'assistant', text:answer});
     used = typeof data.used === 'number' ? data.used : used + 1; renderQuota();
 fetch('https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/stats')
   .then(r => r.json())
