@@ -50,11 +50,11 @@
   <button id="btn-history" title="Show saved conversations">🕘 History</button>
   <input type="file" id="file" accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg">
 </div>
-<div style="text-align:center;color:var(--muted);font-size:.78rem;padding:0 8px 8px">Browse the law library yourself — answers from this site require sign-in and a purchased pack.</div>
+<div style="text-align:center;color:var(--muted);font-size:.78rem;padding:0 8px 8px">Our free library — the fact sheets and templates on the store page — is free here, no sign-up needed. Anything else needs sign-in and a purchased pack.</div>
 <div style="text-align:center;color:var(--muted);font-size:.78rem;padding:0 8px 12px">Law library links: <a href="https://www.law.cornell.edu/">Cornell LII</a> · <a href="https://law.justia.com/">Justia</a> · <a href="https://leginfo.legislature.ca.gov/">California Legislative Information</a> · <a href="https://constitution.congress.gov/">Constitution Annotated</a> · <a href="https://www.uscourts.gov/">U.S. Courts</a></div>
 <div id="chat"></div>
 <div id="auth-box" style="max-width:760px;width:100%;margin:0 auto;padding:12px 16px;text-align:center">
-  <p id="auth-status" style="color:var(--muted);font-size:.85rem;margin-bottom:8px">Sign in to use the assistant. Join first, then subscribe — use the same email for sign-up and for Stripe checkout.</p>
+  <p id="auth-status" style="color:var(--muted);font-size:.85rem;margin-bottom:8px">Our free library is free here, no sign-up needed. To open up anything else with the assistant, sign in and subscribe — use the same email for sign-up and for Stripe checkout.</p>
   <div id="auth-form" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
     <input id="auth-email" type="email" placeholder="Email" autocomplete="email" style="background:var(--panel);border:1px solid rgba(198,164,93,.3);border-radius:20px;color:var(--text);padding:10px 14px;font-size:.9rem">
     <input id="auth-pass" type="password" placeholder="Password" autocomplete="current-password" style="background:var(--panel);border:1px solid rgba(198,164,93,.3);border-radius:20px;color:var(--text);padding:10px 14px;font-size:.9rem">
@@ -153,7 +153,7 @@ async function loadHistory(){
     history = q.data.map(function(m){ return {role: m.role, text: m.text}; }).reverse();
     chat.innerHTML = '';
     history.forEach(function(m){ addMsg(m.role === 'user' ? 'user' : 'bot', m.text); });
-    if (!history.length) addMsg('bot', "I'm the Citizen Legal Assistant. I check our Law Library first — templates, walkthroughs, and fact sheets — and answer those locally, free. For anything not in the library, signed-in members get an answer. What's on your mind?");
+    if (!history.length) addMsg('bot', "I'm the Citizen Legal Assistant. Our free library — the fact sheets and templates on the store page — is free here, no sign-up needed. Anything else needs sign-in and a purchased pack to open up. What's on your mind?");
     saveState();
   } catch (e) { /* fall back silently to localStorage history */ }
 }
@@ -201,7 +201,7 @@ async function refreshAuth(){
   document.getElementById('subscribe-cta').style.display = session ? 'none' : 'block';
   document.getElementById('auth-form').style.display = session ? 'none' : 'flex';
   document.getElementById('btn-signout').style.display = session ? 'inline-block' : 'none';
-  if (session) { await loadTiers(); await loadProfile(); await loadHistory(); document.getElementById('auth-status').textContent = 'Signed in as ' + session.user.email + ' — ' + tierLabel() + ' Your tier is checked on every question.'; } else { MY_TIERS = []; document.getElementById('auth-status').textContent = 'Sign in to use the assistant. Join first, then subscribe — use the same email for sign-up and for Stripe checkout.'; }
+  if (session) { await loadTiers(); await loadProfile(); await loadHistory(); document.getElementById('auth-status').textContent = 'Signed in as ' + session.user.email + ' — ' + tierLabel() + ' Your tier is checked on every question.'; } else { MY_TIERS = []; document.getElementById('auth-status').textContent = 'Our free library is free here, no sign-up needed. To open up anything else with the assistant, sign in and subscribe — use the same email for sign-up and for Stripe checkout.'; }
 }
 async function authGo(mode){
   const emailEl = document.getElementById('auth-email');
@@ -418,9 +418,9 @@ function codesMatch(n){
   return bestScore > 0 ? best : null;
 }
 /* FREE LIBRARY — the free templates and explainers on the store page.
-   Served to any signed-in member, free. This is NOT the entire law
-   library: statute/code answers and the paid template pack stay behind
-   a purchased pack. */
+   Served free regardless — no sign-up necessary. This is NOT the entire
+   law library: statute/code answers and the paid template pack stay behind
+   sign-in + a purchased pack. */
 const FREE_IDS = ['cpra','dispatch','foia','motion','proof','arrest','deadlines','document','encounters','jail','plea'];
 function freeMatch(q){
   const n = ' ' + q.toLowerCase().replace(/[^a-z0-9 ]/g,' ') + ' ';
@@ -456,16 +456,9 @@ function libraryMatch(q){
 }
 
 async function ask(question){
-  // GATE: sign-in required. Signed-out visitors get library links only.
-  let gateSession = null;
-  if (supabaseClient) { const s = await supabaseClient.auth.getSession(); gateSession = s.data.session; }
-  if (!gateSession) {
-    addMsg('user', question);
-    addMsg('bot', 'Answers from this site require sign-in. In the meantime, look it up yourself in the law library: Cornell LII (law.cornell.edu), Justia (law.justia.com), California Legislative Information (leginfo.legislature.ca.gov), Constitution Annotated (constitution.congress.gov), U.S. Courts (uscourts.gov). Sign in above — the free library is free for members, and a purchased pack unlocks the rest.');
-    return;
-  }
   // FREE LIBRARY FIRST: the free templates and explainers on the store
-  // page, served to any signed-in member, free. Not the entire law library.
+  // page, served free regardless — no sign-up necessary. Not the entire
+  // law library.
   const free = freeMatch(question);
   if (free) {
     addMsg('user', question);
@@ -473,6 +466,14 @@ async function ask(question){
     addMsg('bot', free.answer + '\n\nGeneral information only — not legal advice. Consult a licensed attorney for your situation.');
     pushHist({role:'assistant', text:free.answer});
     saveState(); logLibraryAnswer();
+    return;
+  }
+  // Anything outside the free library needs sign-in + a purchased pack.
+  let gateSession = null;
+  if (supabaseClient) { const s = await supabaseClient.auth.getSession(); gateSession = s.data.session; }
+  if (!gateSession) {
+    addMsg('user', question);
+    addMsg('bot', 'That question is outside our free library. To open it up with the assistant, sign in and get a purchased pack. In the meantime, look it up yourself in the law library: Cornell LII (law.cornell.edu), Justia (law.justia.com), California Legislative Information (leginfo.legislature.ca.gov), Constitution Annotated (constitution.congress.gov), U.S. Courts (uscourts.gov). Sign in above, then subscribe with the same email you signed in with.');
     return;
   }
   // PAID GATE: anything outside the free library needs a purchased pack.
