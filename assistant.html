@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI Legal Assistant — The Citizen Store</title>
+<title>Legal Assistant — The Citizen Store</title>
 <script src="./supabase-js.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -38,9 +38,9 @@
 </style>
 </head>
 <body>
-<nav style="max-width:760px;width:100%;margin:0 auto;padding:12px 16px 0;text-align:center;font-size:.9rem"><a href="./">← Back to Store</a> &nbsp;·&nbsp; <a href="assistant.html">AI Legal Assistant</a></nav>
+<nav style="max-width:760px;width:100%;margin:0 auto;padding:12px 16px 0;text-align:center;font-size:.9rem"><a href="./">← Back to Store</a> &nbsp;·&nbsp; <a href="assistant.html">Legal Assistant</a></nav>
 <header>
-  <h1>Citizen AI Legal Assistant</h1>
+  <h1>Citizen Legal Assistant</h1>
   <p>Answers grounded in our curated law library &amp; document templates</p>
 </header>
 <div class="disclaimer">Not a lawyer. Not legal advice. For legal information only — consult a licensed attorney for your situation.</div>
@@ -153,7 +153,7 @@ async function loadHistory(){
     history = q.data.map(function(m){ return {role: m.role, text: m.text}; }).reverse();
     chat.innerHTML = '';
     history.forEach(function(m){ addMsg(m.role === 'user' ? 'user' : 'bot', m.text); });
-    if (!history.length) addMsg('bot', "I'm the Citizen AI Legal Assistant. I check our Law Library first — templates, walkthroughs, and fact sheets — and answer those locally, free. For anything not in the library, signed-in members get a AI-assisted answer. What's on your mind?");
+    if (!history.length) addMsg('bot', "I'm the Citizen Legal Assistant. I check our Law Library first — templates, walkthroughs, and fact sheets — and answer those locally, free. For anything not in the library, signed-in members get an answer. What's on your mind?");
     saveState();
   } catch (e) { /* fall back silently to localStorage history */ }
 }
@@ -515,7 +515,7 @@ async function ask(question){
   }
   if (tpl) {
     if (!canExplainer()) {
-      bubble.innerHTML = '<div class="who">Assistant</div>Explainers are the $15 Assistant tier. ' + tierLabel() + ' Subscribe to the AI Assistant with the same email you signed in with, then ask again.';
+      bubble.innerHTML = '<div class="who">Assistant</div>Explainers are the $15 Assistant tier. ' + tierLabel() + ' Subscribe to the Assistant with the same email you signed in with, then ask again.';
       setLoading(false); return;
     }
     bubble.innerHTML = '<div class="who">Assistant</div>' + tpl.answer.replace(/</g,'&lt;').replace(/\n/g,'<br>') + '<br><br>General information only — not legal advice. Consult a licensed attorney for your situation.';
@@ -523,7 +523,7 @@ async function ask(question){
     setLoading(false); saveState(); logLibraryAnswer(); return;
   }
   if (!canAI()) {
-    bubble.innerHTML = '<div class="who">Assistant</div>AI answers are the $15 Assistant tier (Pro includes them). ' + tierLabel() + ' Subscribe with the same email you signed in with, then ask again.';
+    bubble.innerHTML = '<div class="who">Assistant</div>Answers are the $15 Assistant tier (Pro includes them). ' + tierLabel() + ' Subscribe with the same email you signed in with, then ask again.';
     setLoading(false); return;
   }
   try {
@@ -578,7 +578,7 @@ document.getElementById('btn-history').onclick = () => {
 
 // subscribe CTA visibility is set by refreshAuth() from the live session
 renderQuota();
-addMsg('bot', "I'm the Citizen AI Legal Assistant. I check our Law Library first — templates, walkthroughs, and fact sheets — and answer those locally, free. For anything not in the library, signed-in members get a AI-assisted answer. What's on your mind?");
+addMsg('bot', "I'm the Citizen Legal Assistant. I check our Law Library first — templates, walkthroughs, and fact sheets — and answer those locally, free. For anything not in the library, signed-in members get an answer. What's on your mind?");
 </script>
 </body>
 </html>
