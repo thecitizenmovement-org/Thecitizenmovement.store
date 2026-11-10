@@ -142,6 +142,17 @@ var DATA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
 var authClient = window.supabase.createClient(AUTH_URL, AUTH_ANON);
 var dataClient = window.supabase.createClient(DATA_URL, DATA_ANON);
 
+// --- BACKEND WAKEUP ---
+// The scan backend lives on Render's free tier: it sleeps after 15 min
+// idle and takes ~50s to wake; a no-cors fire-and-forget ping to /health
+// on sign-in wakes it so the first scan doesn't time out.
+var SCAN_BACKEND_URL = 'https://scam-intel-backend.onrender.com';
+function wakeBackend(){
+  try{
+    fetch(SCAN_BACKEND_URL + '/health', { method: 'GET', mode: 'no-cors', cache: 'no-store' }).catch(function(){});
+  }catch(e){}
+}
+
 function $(id){ return document.getElementById(id); }
 function setMsg(id, text, kind){ var el=$(id); el.textContent=text||""; el.className="msg"+(kind?" "+kind:""); }
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
@@ -159,6 +170,7 @@ async function refreshSession(){
   if(s && s.user){
     $("who").textContent = "Signed in as " + s.user.email;
     showDash(true);
+    wakeBackend();
     loadCases();
   } else {
     showDash(false);
