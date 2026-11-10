@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scam Intel Dashboard — The Citizen Movement Store</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{--bg:#0d0d0d;--panel:#161616;--gold:#d4af37;--gold-dim:#a8862a;--text:#f0ead6;--muted:#9a958a;--border:rgba(212,175,55,.3);--red:#c0392b;--green:#27ae60}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:Georgia,serif;line-height:1.5;min-height:100vh}
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+  .topnav{display:flex;gap:16px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--border);margin-bottom:24px;font-size:.9rem}
+  .topnav a{color:var(--gold);text-decoration:none}
+  .topnav a:hover{text-decoration:underline}
+  h1{color:var(--gold);font-size:1.6rem;margin-bottom:4px}
+  .sub{color:var(--muted);font-size:.95rem;margin-bottom:20px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:18px}
+  .card h2{color:var(--gold);font-size:1.15rem;margin-bottom:10px}
+  label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px}
+  input,select,textarea{width:100%;background:#0d0d0d;border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:.95rem;font-family:inherit}
+  textarea{min-height:70px;resize:vertical}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row>*{flex:1;min-width:140px}
+  button{background:var(--gold);color:#111;border:none;border-radius:20px;padding:11px 22px;font-size:.95rem;font-weight:bold;cursor:pointer;margin-top:14px}
+  button.ghost{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .msg{font-size:.9rem;margin-top:10px;min-height:1.2em}
+  .msg.err{color:#e74c3c}.msg.ok{color:var(--green)}
+  .result{margin-top:12px;font-size:.92rem}
+  .hit{border-left:3px solid var(--red);padding:10px 12px;background:#1e0f0d;border-radius:6px;margin-top:8px}
+  .clear{border-left:3px solid var(--green);padding:10px 12px;background:#0e1a12;border-radius:6px;margin-top:8px}
+  .case{border-bottom:1px solid var(--border);padding:10px 0;font-size:.92rem}
+  .case:last-child{border-bottom:none}
+  .case .t{font-weight:bold}
+  .case .m{color:var(--muted);font-size:.85rem}
+  .badge{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:10px;background:#2a2113;color:var(--gold);margin-left:6px}
+  .note{font-size:.85rem;color:var(--muted)}
+  .hidden{display:none}
+  footer{margin-top:30px;font-size:.8rem;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav">
+    <a href="./">Store</a>
+    <a href="index.html#catalog">Catalog</a>
+    <a href="assistant.html">Legal Assistant</a>
+    <a href="scam-intel.html">Scam Intel</a>
+    <a href="https://thecitizenmovement.org">Movement</a>
+  </nav>
+
+  <h1>Scam Intel Dashboard</h1>
+  <p class="sub">Check a phone number, email, or domain against the shared scam database — and log verified scams so every member benefits.</p>
+
+  <!-- SIGN IN -->
+  <div class="card" id="auth-card">
+    <h2>Member sign-in</h2>
+    <p class="note">Sign in with the same email and password you use for the store. The dashboard is for members only.</p>
+    <div id="auth-form">
+      <label for="auth-email">Email</label>
+      <input id="auth-email" type="email" placeholder="you@example.com" autocomplete="email">
+      <label for="auth-pass">Password</label>
+      <input id="auth-pass" type="password" placeholder="Password" autocomplete="current-password">
+      <button id="signin-btn">Sign in</button>
+      <button class="ghost" id="signout-btn" style="display:none">Sign out</button>
+      <div class="msg" id="auth-msg"></div>
+    </div>
+    <div id="signed-in" class="hidden">
+      <p class="msg ok" id="who"></p>
+      <button class="ghost" id="signout-btn2">Sign out</button>
+    </div>
+  </div>
+
+  <!-- CHECK -->
+  <div class="card hidden" id="dash">
+    <h2>Check a number, email, or domain</h2>
+    <label for="check-target">Phone, email, or domain</label>
+    <input id="check-target" type="text" placeholder="+1 (555) 123-4567, name@example.com, or suspicious-site.com" autocomplete="off">
+    <div class="row">
+      <div>
+        <label for="check-type">Type</label>
+        <select id="check-type">
+          <option value="phone">Phone</option>
+          <option value="email">Email</option>
+          <option value="domain">Domain</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <button id="check-btn">Check</button>
+    <div class="msg" id="check-msg"></div>
+    <div class="result" id="check-result"></div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="card hidden" id="report-card">
+    <h2>Log a verified scam</h2>
+    <p class="note">Only log scams you have verified. Every entry is shared with all members.</p>
+    <label for="rep-target">Phone, email, or domain</label>
+    <input id="rep-target" type="text" placeholder="+1 (555) 123-4567, name@example.com, or suspicious-site.com" autocomplete="off">
+    <div class="row">
+      <div>
+        <label for="rep-type">Type</label>
+        <select id="rep-type">
+          <option value="phone">Phone</option>
+          <option value="email">Email</option>
+          <option value="domain">Domain</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label for="rep-location">Location (optional)</label>
+        <input id="rep-location" type="text" placeholder="City, State">
+      </div>
+    </div>
+    <label for="rep-notes">What happened</label>
+    <textarea id="rep-notes" placeholder="Brief, factual notes — what the scam was, how it worked."></textarea>
+    <button id="report-btn">Log verified scam</button>
+    <div class="msg" id="report-msg"></div>
+  </div>
+
+  <!-- OPEN CASES -->
+  <div class="card hidden" id="cases-card">
+    <h2>Open cases <span class="badge" id="cases-count"></span></h2>
+    <div id="cases-list"><p class="note">Loading…</p></div>
+    <button class="ghost" id="refresh-cases">Refresh</button>
+  </div>
+
+  <p class="note" style="text-align:center">Live carrier and deep scans run server-side and are coming next. The shared database check and verified-scam logging work now.</p>
+  <footer>General information only — not legal advice. The United Citizens of America.</footer>
+</div>
+
+<script>
+// --- CONFIG ---
+// Member Auth lives in the citizen-members project; the scam database lives in the scam-intel project.
+var AUTH_URL = "https://jesrbqrwbacuirwxbkis.supabase.co";
+var AUTH_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implc3JicXJ3YmFjdWlyd3hia2lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2NTU2OTcsImV4cCI6MjEwNzIzMTY5N30._LCnNC2JIjijt6n0u3kKestF5G2Zsjju4hEv1d1tImc";
+var DATA_URL = "https://fcfsxgxqsownfywaokdp.supabase.co";
+var DATA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZnN4Z3hxc293bmZ5d2Fva2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2NTA4NDIsImV4cCI6MjEwNzIyNjg0Mn0.jQGAYrilBpcebTisepwMITNSe797VqwgLoLMw6smkBE";
+
+var authClient = window.supabase.createClient(AUTH_URL, AUTH_ANON);
+var dataClient = window.supabase.createClient(DATA_URL, DATA_ANON);
+
+function $(id){ return document.getElementById(id); }
+function setMsg(id, text, kind){ var el=$(id); el.textContent=text||""; el.className="msg"+(kind?" "+kind:""); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+function showDash(on){
+  ["dash","report-card","cases-card"].forEach(function(id){ $(id).classList.toggle("hidden", !on); });
+  $("auth-form").style.display = on ? "none" : "";
+  $("signed-in").classList.toggle("hidden", !on);
+  $("signout-btn").style.display = "none";
+}
+
+async function refreshSession(){
+  var r = await authClient.auth.getSession();
+  var s = r && r.data ? r.data.session : null;
+  if(s && s.user){
+    $("who").textContent = "Signed in as " + s.user.email;
+    showDash(true);
+    loadCases();
+  } else {
+    showDash(false);
+  }
+}
+
+$("signin-btn").addEventListener("click", async function(){
+  var email = $("auth-email").value.trim();
+  var pass = $("auth-pass").value;
+  if(!email || !pass){ setMsg("auth-msg","Enter your email and password.","err"); return; }
+  setMsg("auth-msg","Signing in…","");
+  var r = await authClient.auth.signInWithPassword({email:email, password:pass});
+  if(r.error){ setMsg("auth-msg", r.error.message, "err"); return; }
+  setMsg("auth-msg","", "");
+  refreshSession();
+});
+function signOut(){ authClient.auth.signOut().then(refreshSession); }
+$("signout-btn").addEventListener("click", signOut);
+$("signout-btn2").addEventListener("click", signOut);
+
+$("check-btn").addEventListener("click", async function(){
+  var target = $("check-target").value.trim();
+  var type = $("check-type").value;
+  if(!target){ setMsg("check-msg","Enter a phone, email, or domain to check.","err"); return; }
+  setMsg("check-msg","Checking the shared database…","");
+  $("check-result").innerHTML = "";
+  var q = await dataClient.from("scam_reports").select("target,target_type,location,country,is_voip,case_status,notes,scan_date").eq("target", target).order("scan_date", {ascending:false});
+  if(q.error){ setMsg("check-msg","Check failed: " + q.error.message, "err"); return; }
+  var rows = q.data || [];
+  if(rows.length === 0){
+    setMsg("check-msg","", "");
+    $("check-result").innerHTML = '<div class="clear"><b>No prior reports.</b><br><span class="note">This ' + esc(type) + ' has not been reported as a scam in the shared database. That does not prove it is safe — stay cautious.</span></div>';
+  } else {
+    setMsg("check-msg","", "");
+    var html = '<div class="hit"><b>Reported ' + rows.length + ' time' + (rows.length>1?"s":"") + ' as a scam.</b></div>';
+    rows.forEach(function(r){
+      html += '<div class="case"><div class="t">' + esc(r.target) + ' <span class="badge">' + esc(r.target_type||"") + '</span> <span class="badge">' + esc(r.case_status||"") + '</span></div>'
+        + '<div class="m">' + esc(r.location||"") + (r.country?(" · "+esc(r.country)):"") + (r.is_voip?" · VOIP":"") + ' · ' + esc((r.scan_date||"").slice(0,10)) + '</div>'
+        + (r.notes ? '<div>' + esc(r.notes) + '</div>' : '') + '</div>';
+    });
+    $("check-result").innerHTML = html;
+  }
+});
+
+$("report-btn").addEventListener("click", async function(){
+  var target = $("rep-target").value.trim();
+  var type = $("rep-type").value;
+  var loc = $("rep-location").value.trim();
+  var notes = $("rep-notes").value.trim();
+  if(!target){ setMsg("report-msg","Enter the phone, email, or domain.","err"); return; }
+  if(!notes){ setMsg("report-msg","Add brief factual notes about what happened.","err"); return; }
+  setMsg("report-msg","Logging…","");
+  var ins = await dataClient.from("scam_reports").insert({target:target, target_type:type, location:loc||null, notes:notes, case_status:"open"}).select("id");
+  if(ins.error){ setMsg("report-msg","Could not log it: " + ins.error.message, "err"); return; }
+  setMsg("report-msg","Logged. Thank you — every member now benefits from this report.","ok");
+  $("rep-target").value=""; $("rep-notes").value=""; $("rep-location").value="";
+  loadCases();
+});
+
+async function loadCases(){
+  var list = $("cases-list");
+  var q = await dataClient.from("open_cases").select("target,target_type,location,is_voip,scan_date,case_status,notes").limit(25);
+  if(q.error){ list.innerHTML = '<p class="note">Could not load open cases.</p>'; return; }
+  var rows = q.data || [];
+  $("cases-count").textContent = rows.length + " open";
+  if(rows.length === 0){ list.innerHTML = '<p class="note">No open cases yet.</p>'; return; }
+  var html = "";
+  rows.forEach(function(r){
+    html += '<div class="case"><div class="t">' + esc(r.target) + ' <span class="badge">' + esc(r.target_type||"") + '</span></div>'
+      + '<div class="m">' + esc(r.location||"") + (r.is_voip?" · VOIP":"") + ' · ' + esc((r.scan_date||"").slice(0,10)) + '</div>'
+      + (r.notes ? '<div>' + esc(r.notes) + '</div>' : '') + '</div>';
+  });
+  list.innerHTML = html;
+}
+$("refresh-cases").addEventListener("click", loadCases);
+
+refreshSession();
+</script>
+</body>
+</html>
