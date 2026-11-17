@@ -124,6 +124,127 @@
 </head>
 <body>
 <nav class="topnav"><a href="./">Store</a><a href="#catalog">Catalog</a><a href="#free">Free Fact Sheets</a><a href="#library">Law Library</a><a href="assistant.html">Legal Assistant</a><a href="scam-intel.html">Scam Intel</a><a href="foundry.html" class="foundry-link" hidden>Foundry</a><a href="assistant.html">Sign in</a><a href="reset-password.html">Forgot password?</a><a href="https://thecitizenmovement.org">Movement</a></nav>
+<!-- ================= MARKETS TICKER — thecitizenmovement.store home =================
+     Placement: immediately AFTER the closing </nav> of the top nav (the nav
+     ends right before the <!-- HERO / BACKDROP --> comment and <header
+     class="hero">), so the strip sits full-width above the store hero.
+     Same size and speed as the news ticker on .org/.com (Nov 17): 40px words,
+     30s scroll, live feed refetched every 15 minutes while the page is open.
+     STOCKS ONLY (founder, Nov 17, 3:16 PM): the majors — S&P 500, Dow Jones,
+     Nasdaq Composite — plus NVIDIA, Tesla, SpaceX, Iridium. No crypto.
+     The live feed still returns Bitcoin/Ethereum; this snippet filters them
+     out when rendering, so they never show. If the live feed is not reachable,
+     stocks fall back to the embedded Nov 17 close. No keys, no secrets.
+     Quotes are delayed ~15 min on free feeds. Informational only.
+     ================================================================================================= -->
+<style>
+  .ucm-ticker{background:#fff;color:#101828;overflow:hidden;white-space:nowrap;
+    border-bottom:3px solid #c9a227;font:600 40px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}
+  .ucm-ticker-track{display:inline-flex;align-items:center;will-change:transform;
+    animation:ucmTickerScroll 30s linear infinite;}
+  .ucm-ticker:hover .ucm-ticker-track{animation-play-state:paused;}
+  @keyframes ucmTickerScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .ucm-tick-label{background:#0e1a2b;color:#fff;border-radius:999px;padding:2px 12px;
+    margin:6px 14px 6px 10px;font-size:13px;letter-spacing:.12em;flex:0 0 auto;}
+  .ucm-tick-item{flex:0 0 auto;}
+  .ucm-tick-sep{color:#c9a227;margin:0 14px;flex:0 0 auto;}
+  .ucm-tick-down{color:#b42318;}
+  .ucm-tick-up{color:#067647;}
+  .ucm-tick-ah{color:#667085;font-weight:500;}
+  .ucm-ticker-status{font:500 12px/1.4 system-ui,sans-serif;color:#667085;
+    text-align:right;padding:2px 10px 4px;background:#fff;}
+  .ucm-ticker-note{font:500 12px/1.4 system-ui,sans-serif;color:#667085;
+    text-align:center;padding:2px 10px 6px;background:#fff;}
+</style>
+<div class="ucm-ticker" id="ucm-markets-ticker" role="marquee" aria-label="Markets">
+  <div class="ucm-ticker-track" id="ucm-markets-track"></div>
+</div>
+<div class="ucm-ticker-status" id="ucm-markets-status">Loading markets&hellip;</div>
+<div class="ucm-ticker-note">Delayed quotes. Informational only &mdash; not investment advice.</div>
+<script>
+(function () {
+  var FEED = "https://jesrbqrwbacuirwxbkis.supabase.co/functions/v1/ticker-feed?type=markets";
+  // Fallback = today's verified close (Nov 17, 2026, 4:00 PM EST). Used only
+  // when the live feed is unreachable. Kept in step with markets-ticker.json.
+  // change_pct is the session change; after_hours is the after-hours price.
+  // STOCKS ONLY — no crypto in this list, by the founder's call.
+  var FALLBACK = [
+    { symbol: "S&P 500", price: "7,320.95", change_pct: -1.29 },
+    { symbol: "Dow Jones", price: "50,686.01", change_pct: -1.79 },
+    { symbol: "Nasdaq Composite", price: "24,232.17", change_pct: -1.13 },
+    { symbol: "NVIDIA (NVDA)", price: "$155.46", change_pct: -0.44, after_hours: "$158.88", after_hours_pct: 2.20 },
+    { symbol: "Tesla (TSLA)", price: "$380.11", change_pct: 0.10, after_hours: "$380.86", after_hours_pct: 0.20 },
+    { symbol: "SpaceX (SPCX)", price: "$141.70", change_pct: 3.16, after_hours: "$142.10", after_hours_pct: 0.28 },
+    { symbol: "Iridium (IRDM)", price: "$44.60", change_pct: -0.95 }
+  ];
+  var track = document.getElementById("ucm-markets-track");
+  var statusEl = document.getElementById("ucm-markets-status");
+
+  function setStatus(text) {
+    if (statusEl) statusEl.textContent = text;
+    if (window.ucmTickerStatus) window.ucmTickerStatus("markets", text);
+  }
+
+  function fmtPct(p) { return (p > 0 ? "+" : "") + p.toFixed(2) + "%"; }
+
+  function render(items, live) {
+    // Stocks only: the feed still returns Bitcoin/Ethereum — filter them out.
+    items = items.filter(function (it) {
+      return it.symbol !== "Bitcoin" && it.symbol !== "Ethereum";
+    });
+    track.innerHTML = "";
+    function buildHalf() {
+      var frag = document.createDocumentFragment();
+      var lab = document.createElement("span");
+      lab.className = "ucm-tick-label"; lab.textContent = "MARKETS";
+      frag.appendChild(lab);
+      items.forEach(function (it) {
+        var span = document.createElement("span");
+        span.className = "ucm-tick-item";
+        var arrow = it.change_pct > 0 ? "\u25B2" : (it.change_pct < 0 ? "\u25BC" : "\u25AC");
+        var cls = it.change_pct > 0 ? "ucm-tick-up" : (it.change_pct < 0 ? "ucm-tick-down" : "");
+        span.textContent = it.symbol + " " + it.price + " ";
+        var ch = document.createElement("span");
+        ch.className = cls; ch.textContent = arrow + fmtPct(it.change_pct);
+        span.appendChild(ch);
+        if (it.after_hours) {
+          var ah = document.createElement("span");
+          ah.className = "ucm-tick-ah";
+          var ahArrow = it.after_hours_pct > 0 ? "\u25B2" : "\u25BC";
+          ah.textContent = " \u00B7 after-hours " + it.after_hours + " " + ahArrow + fmtPct(it.after_hours_pct);
+          span.appendChild(ah);
+        }
+        frag.appendChild(span);
+        var sep = document.createElement("span");
+        sep.className = "ucm-tick-sep"; sep.textContent = "\u25C6";
+        frag.appendChild(sep);
+      });
+      return frag;
+    }
+    track.appendChild(buildHalf());
+    track.appendChild(buildHalf());
+    setStatus(live
+      ? "Live \u2014 markets refresh every 15 minutes. Free feeds are delayed ~15 min."
+      : "Nov 17, 2026 close \u2014 live feed not reached, showing the latest snapshot.");
+  }
+
+  function update() {
+    var ctrl = new AbortController();
+    var timer = setTimeout(function () { ctrl.abort(); }, 8000);
+    fetch(FEED, { signal: ctrl.signal })
+      .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error("feed " + r.status); return r.json(); })
+      .then(function (d) {
+        if (d && d.ok && d.markets && d.markets.items && d.markets.items.length) render(d.markets.items, true);
+        else render(FALLBACK, false);
+      })
+      .catch(function () { render(FALLBACK, false); });
+  }
+
+  update();
+  setInterval(function () { if (!document.hidden) update(); }, 15 * 60 * 1000);
+})();
+</script>
+<!-- ================= /END MARKETS TICKER ================= -->
 
 
 <!-- ================= HERO / BACKDROP ================= -->
