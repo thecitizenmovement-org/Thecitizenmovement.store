@@ -20,11 +20,11 @@
   a{color:var(--bright)}
   .wrap{max-width:1080px;margin:0 auto;padding:0 18px}
 
-  /* ---------- test ribbon ---------- */
+
   .ribbon{background:#7A3E00;color:#FFE9C9;text-align:center;font-size:.78rem;letter-spacing:.14em;
     text-transform:uppercase;padding:6px 10px;font-family:Arial,Helvetica,sans-serif}
 
-  /* ---------- hero / backdrop ---------- */
+
   .hero{position:relative;text-align:center;padding:64px 18px 54px;overflow:hidden;
     background:transparent}
   .hero-art{border:1.5px dashed var(--gold);border-radius:14px;color:var(--muted);
@@ -40,19 +40,19 @@
   .btn.ghost{background:transparent;color:var(--bright);border:1.5px solid var(--gold)}
   .btn.small{padding:9px 18px;font-size:.92rem}
 
-  /* ---------- sections ---------- */
+
   section{padding:46px 0 8px}
   h2{font-weight:normal;font-size:1.7rem;color:var(--ink);text-align:center;margin-bottom:6px}
   .sub{color:var(--muted);text-align:center;max-width:640px;margin:0 auto 26px}
 
-  /* ---------- demo toggle ---------- */
+
   .demo{display:flex;justify-content:center;gap:8px;margin-bottom:26px;font-family:Arial,Helvetica,sans-serif;font-size:.82rem}
   .demo button{background:var(--panel2);color:var(--muted);border:1px solid var(--line);border-radius:999px;
     padding:7px 16px;cursor:pointer;font-family:inherit}
   .demo button.on{color:#171207;background:var(--gold);border-color:var(--gold);font-weight:bold}
   .demo-note{text-align:center;color:var(--muted);font-size:.8rem;margin:-16px 0 24px;font-family:Arial,Helvetica,sans-serif}
 
-  /* ---------- cards ---------- */
+
   .grid{display:grid;grid-template-columns:1fr;gap:20px}
   @media(min-width:760px){.grid{grid-template-columns:repeat(3,1fr)}}
   .card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);
@@ -67,7 +67,7 @@
   .card p{color:var(--muted);font-size:.95rem;margin-bottom:16px}
   .card .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 
-  /* sealed (unpurchased) state: full color, teased preview, gold seal */
+
   .card[data-state="sealed"] .thumb{filter:saturate(.55) brightness(.8)}
   .seal{position:absolute;top:14px;right:8px;background:var(--alert);color:#171207;
     font-family:Arial,Helvetica,sans-serif;font-size:.68rem;font-weight:bold;letter-spacing:.18em;
@@ -78,25 +78,25 @@
   .card[data-state="owned"] .open-btn{display:inline-block}
   .card[data-state="owned"] .buy-btn{display:none}
 
-  /* owned state: raised and lit */
+
   .card[data-state="owned"]{transform:translateY(-6px);border-color:var(--gold);
     box-shadow:0 18px 38px rgba(0,0,0,.6),0 0 0 1px var(--gold),0 0 26px rgba(255,215,0,.22)}
   .card[data-state="owned"]:hover{transform:translateY(-10px);
     box-shadow:0 24px 44px rgba(0,0,0,.65),0 0 0 1px var(--bright),0 0 34px rgba(255,225,77,.3)}
 
-  /* tactile hover for every card (the .org language) */
+
   .card:hover{transform:translateY(-4px);border-color:var(--gold);
     box-shadow:0 16px 34px rgba(0,0,0,.6),0 0 22px rgba(198,164,93,.18)}
   .card:active{transform:translateY(-1px) scale(.995)}
 
-  /* free cards */
+
   .card.free .thumb{filter:none}
   .card.free .seal{display:none}
   .tag{position:absolute;top:14px;right:8px;background:#2e4a2e;color:#cdeecd;
     font-family:Arial,Helvetica,sans-serif;font-size:.68rem;font-weight:bold;letter-spacing:.18em;
     padding:5px 12px;border-radius:4px;text-transform:uppercase}
 
-  /* donate + footer */
+
   .donate{text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;
     padding:30px 20px;margin:40px 0 10px}
   .donate p{color:var(--muted);max-width:560px;margin:8px auto 18px}
@@ -232,10 +232,7 @@
   setInterval(function () { if (!document.hidden) update(); }, 15 * 60 * 1000);
 })();
 </script>
-<!-- ================= /END MARKETS TICKER ================= -->
 
-
-<!-- ================= HERO / BACKDROP ================= -->
 <header class="hero">
   <h1>The Citizen <span class="gold">Store</span></h1>
   <p>The storefront of the United Citizens Movement. Working tools for people
@@ -251,14 +248,13 @@
 <div class="member-panel" id="member-panel"><div id="member-auth-box"><h3>Member Sign In</h3><p class="coming">Loading member system…</p></div></div>
 <div class="member-panel" id="member-profile-egg" hidden><h3>Your member profile — optional information</h3><p class="muted">Add your personal information (optional) — saved only if you choose to, in the store.</p><p><a href="https://thecitizenmovement.com/info-member-profile.html">Your member profile — optional information</a></p><p><a href="https://thecitizenmovement.store/">Add your personal information (optional)</a></p></div>
 
-  <!-- ================= CATALOG ================= -->
+
   <section id="catalog">
     <h2>The Catalog</h2>
     <p class="sub">Buy it once and it lights up in your library — sealed until it's yours, raised and open the moment it is.</p>
 
-
     <div class="grid">
-      <!-- Template Pack -->
+
       <article class="card" data-product="templates" data-state="sealed">
         <div class="seal">Sealed</div>
         <div class="thumb">⚖</div>
@@ -272,7 +268,7 @@
         </div>
       </article>
 
-      <!-- Assistant -->
+
       <article class="card" data-product="assistant" data-state="sealed">
         <div class="seal">Sealed</div>
         <div class="thumb">✦</div>
@@ -286,7 +282,7 @@
         </div>
       </article>
 
-      <!-- Assistant Pro -->
+
       <article class="card" data-product="assistant_pro" data-state="sealed">
         <div class="seal">Sealed</div>
         <div class="thumb">♜</div>
@@ -301,7 +297,7 @@
         </div>
       </article>
 
-      <!-- Scam Intel Dashboard -->
+
       <article class="card" data-product="scam_intel" data-state="sealed">
         <div class="seal">Sealed</div>
         <div class="thumb">&#128737;</div>
@@ -313,7 +309,7 @@
         </div>
       </article>
 
-      <!-- Equalizer: Real Estate & Property -->
+
       <article class="card" data-product="equalizer_real_estate" data-state="sealed">
         <div class="seal">Sealed</div>
         <div class="thumb">⌂</div>
@@ -328,7 +324,7 @@
         </div>
       </article>
 
-      <!-- Equalizer: Domestic Violence & Protective Orders -->
+
       <article class="card" data-product="equalizer_dv" data-state="sealed">
         <div class="seal">Sealed</div>
         <div class="thumb">⚜</div>
@@ -343,7 +339,7 @@
         </div>
       </article>
 
-      <!-- Equalizer editions in the works -->
+
       <article class="card free"><div class="tag">In the works</div><div class="thumb">📄</div>
         <h3>The Equalizer — Arrested While Innocent</h3><p>The next edition in build: the guide for fighting a case that should never have been filed.</p>
         <a class="btn small ghost" href="#" data-factsheet="equalizer-arrested-innocent">Preview the sheet</a></article>
@@ -353,7 +349,7 @@
     </div>
   </section>
 
-  <!-- ================= FREE FACT SHEETS ================= -->
+
   <section id="free">
     <h2>Free Fact Sheets</h2>
     <p class="sub">No account, no charge. Know your rights before you need them — pass them on.</p>
@@ -379,7 +375,7 @@
     </div>
   </section>
 
-  <!-- ================= LAW LIBRARY ================= -->
+
   <section id="library">
     <h2>Law Library</h2>
     <p class="sub">Free templates, no account, no charge. Download, fill in, and file — these live here on the store now.</p>
@@ -413,7 +409,7 @@
     <p class="sub">General information only — not legal advice. Confirm current rules with the court clerk or a licensed attorney before filing. Need help filling one in? Ask the Legal Assistant — that's what the paid packs are for.</p>
   </section>
 
-  <!-- ================= DONATE ================= -->
+
   <div class="donate">
     <h2>Fuel the Work</h2>
     <p>The audits, the filings, and the free sheets run on citizen support. Every dollar goes to the work — records fees, printing, and keeping the lights on.</p>
@@ -433,7 +429,7 @@
 <script>
 (function(){
   "use strict";
-  /* ---- tactile click (same language as the .org) ---- */
+
   var actx = null;
   function click(freq){
     try{
@@ -444,19 +440,12 @@
       g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.09);
       o.connect(g); g.connect(actx.destination);
       o.start(); o.stop(actx.currentTime + 0.1);
-    }catch(e){ /* audio is a garnish, never a blocker */ }
+    }catch(e){  }
   }
   document.querySelectorAll(".card").forEach(function(card){
     card.addEventListener("pointerdown", function(){ click(card.dataset.state === "owned" ? 740 : 520); });
   });
 
-  /* ---- sealed <-> owned state engine ----
-     applyEntitlements takes a list of owned product keys
-     ('templates', 'assistant', 'assistant_pro') and flips the cards.
-     TODO at go-live: feed this from Supabase — after member sign-in,
-     select entitlement keys from the `entitlements` table for the user
-     and call applyEntitlements(keys). The demo buttons below stand in
-     for that call so the states can be reviewed on sight. */
   function applyEntitlements(owned){
     document.querySelectorAll('.card[data-product]').forEach(function(card){
       card.dataset.state = owned.indexOf(card.dataset.product) >= 0 ? "owned" : "sealed";
